@@ -18,10 +18,11 @@ public class DayTraderSimulator {
 	}
 	
 	public void tradeDaily(Date tradeDate, double preClose, double curOpen) {
+		mm.start();
 		account.init();
 		account.handleOverNight(preClose, curOpen);
 		
-		Period period = Period.MIN15;
+		Period period = Period.MIN5;
 		int interval = period.minutes();
 		
 		Date start = new Date(tradeDate.getTime() + Constants.MARKET_OPEN_TIME);
@@ -29,15 +30,22 @@ public class DayTraderSimulator {
 		
 		Date now = start;
 		while (now.before(end)) {
-			
+			analyse();
+			applyStrategy();
+			now = new Date(now.getTime() + period.minutes()*Constants.MINUTE_IN_MILLI_SECONDS);
 		}
 		
+		stop();
 		account.showTransactions();
 	}
 	
 	
 	
-	
+	public synchronized void stop() {
+		mm = null;
+		notify();
+	}
+
 	public static void main(String[] args) throws ParseException {
 		DayTraderSimulator simulator = new DayTraderSimulator();
 		double preClose = 9.91;
@@ -45,6 +53,7 @@ public class DayTraderSimulator {
 		Date tradeDate = Constants.TRADE_DATE_FORMATTER.parse("01/29/2013");
 		
 		simulator.tradeDaily(tradeDate, preClose, curOpen);
+		
 	
 	}
 }

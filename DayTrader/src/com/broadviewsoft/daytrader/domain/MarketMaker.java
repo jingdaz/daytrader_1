@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MarketMaker {
+public class MarketMaker extends Thread {
 	private boolean useRealData = false;
 	private List<StockPrice> priceTrace = new ArrayList<StockPrice>(); 
+	private List<Account> accounts = new ArrayList<Account>();
 	
 	public MarketMaker() {
 		
@@ -45,4 +46,23 @@ public class MarketMaker {
 		
 		return null;
 	}
+	
+	
+	public List<Account> getAccounts() {
+		return accounts;
+	}
+
+	public void setAccounts(List<Account> accounts) {
+		this.accounts = accounts;
+	}
+
+	public void addAccount(Account account) {
+		accounts.add(account);
+	}
+
+	public void run() {
+		
+	}
+
+	
 }
