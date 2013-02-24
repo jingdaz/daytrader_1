@@ -4,6 +4,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 public class Constants {
+	public final static long MINUTE_IN_MILLI_SECONDS = 60*1000;
+	
 	public final static int INIT_CASH_AMOUNT = 12000;
 	public final static String[] INIT_STOCK_SYMBOLS = {"UVXY"};
 	public final static int[] INIT_STOCK_VOLUMES = {500};
