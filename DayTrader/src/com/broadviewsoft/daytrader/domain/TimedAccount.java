@@ -26,5 +26,10 @@ public class TimedAccount {
 		this.account = account;
 	}
 	
-	
+	/**
+	 * Settlement now for next period
+	 */
+	public void nextPeriod(Period period) {
+		
+	}
 }
