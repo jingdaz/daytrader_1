@@ -8,6 +8,8 @@ public class Account {
 	private CurrencyType currencyType;
 	private double cashAmount;
 	private List<StockHolding> holdings = new ArrayList<StockHolding>();
+	
+	private List<Order> orders = new ArrayList<Order>();
 	private List<Transaction> transactions = new ArrayList<Transaction>();
 	
 	public Account() {
@@ -30,9 +32,13 @@ public class Account {
 	/**
 	 * 
 	 */
-	public void sellOverNight(double preClose, double curOpen) {
+	public void handleOverNight(double preClose, double curOpen) {
+		double lockWinLimit = Math.min(Constants.LOCKWIN_PRE_CLOSE_FACTOR
+				* preClose, Constants.LOCKWIN_CUR_OPEN_FACTOR * curOpen);
+		double stopLoss = Constants.STOPLOSS_CUR_OPEN_FACTOR * curOpen;
 		
 	}
+	
 	
 	
 	public Long getAcctNbr() {
@@ -65,6 +71,14 @@ public class Account {
 
 	public void setHoldings(List<StockHolding> holdings) {
 		this.holdings = holdings;
+	}
+
+	public List<Order> getOrders() {
+		return orders;
+	}
+
+	public void setOrders(List<Order> orders) {
+		this.orders = orders;
 	}
 
 	public List<Transaction> getTransactions() {
