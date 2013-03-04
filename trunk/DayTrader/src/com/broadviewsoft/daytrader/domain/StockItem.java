@@ -1,7 +1,10 @@
 package com.broadviewsoft.daytrader.domain;
 
+import java.util.Date;
+
 public class StockItem {
 	private Stock stock;
+	private Date timestamp;
 	private Period period;
 	private double open;
 	private double high;
@@ -9,6 +12,7 @@ public class StockItem {
 	private double close;
 	private double rsi;
 	private double cci;
+	private long volume;
 	
 	public StockItem() {
 		
@@ -23,6 +27,14 @@ public class StockItem {
 		this.stock = stock;
 	}
 
+
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
+	}
 
 	public Period getPeriod() {
 		return period;
@@ -78,6 +90,14 @@ public class StockItem {
 
 	public void setCci(double cci) {
 		this.cci = cci;
+	}
+
+	public long getVolume() {
+		return volume;
+	}
+
+	public void setVolume(long volume) {
+		this.volume = volume;
 	}
 	
 	
