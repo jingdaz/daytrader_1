@@ -27,4 +27,5 @@ public class Constants {
 	public final static String TRADE_START_DATE_PATTERN = "MM/dd/YYYY";
 	public final static DateFormat TRADE_DATE_FORMATTER = new SimpleDateFormat(TRADE_START_DATE_PATTERN);
 	
+	public final static String HISTORY_DATA_PATH = "D:/projects/DayTrader/design/";
 }
