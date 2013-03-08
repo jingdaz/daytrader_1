@@ -6,7 +6,12 @@ public class Stock {
 	private String companyName;
 	
 	public Stock() {
-		
+		currencyType = CurrencyType.USD;
+	}
+
+	public Stock(String symbol) {
+		currencyType = CurrencyType.USD;
+		this.symbol = symbol;
 	}
 
 	public CurrencyType getCurrencyType() {

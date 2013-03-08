@@ -15,7 +15,13 @@ public class StockItem {
 	private long volume;
 	
 	public StockItem() {
-		
+		stock = new Stock("UVXY");
+		period = Period.MIN5;
+	}
+
+	public StockItem(String symbol, Period period) {
+		stock = new Stock(symbol);
+		this.period = period;
 	}
 
 	public Stock getStock() {
@@ -99,7 +105,43 @@ public class StockItem {
 	public void setVolume(long volume) {
 		this.volume = volume;
 	}
+
+	public static String format(double price) {
+		return Constants.STOCK_PRICE_FORMATTER.format(price);
+	}
 	
-	
+	public static String format(long price) {
+		return Constants.STOCK_VOLUME_FORMATTER.format(price);
+	}
+
+	public static String printHeaders(CurrencyType curType, String symbol, Period period) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(curType + "\t");
+		sb.append(symbol + "\t");
+		sb.append(period + "\r\t");
+		sb.append("Timestamp\t\t");
+		sb.append("Open\t");
+		sb.append("High\t");
+		sb.append("Low\t");
+		sb.append("Close\t");
+		sb.append("RSI\t");
+		sb.append("CCI\t");
+		sb.append("Volume\t");
+		return sb.toString();
+	}
+
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(timestamp + "\t");
+		sb.append(format(open) + "\t");
+		sb.append(format(high) + "\t");
+		sb.append(format(low) + "\t");
+		sb.append(format(close) + "\t");
+		sb.append(format(rsi) + "\t");
+		sb.append(format(cci) + "\t");
+		sb.append(format(volume) + "\t");
+		return sb.toString();
+	}
 
 }
