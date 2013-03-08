@@ -1,6 +1,8 @@
 package com.broadviewsoft.daytrader.domain;
 
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
 public class Constants {
@@ -15,6 +17,8 @@ public class Constants {
 	public final static double LOCKWIN_CUR_OPEN_FACTOR = 1.02;
 	public final static double STOPLOSS_CUR_OPEN_FACTOR = 0.98;
 	
+	public final static String STOCK_PRICE_TIMESTAMP_PATTERN = "M/d/yyyy h:mm:ss a";
+	
 //	public final static String MARKET_START_TIME = "09:30 AM";
 //	public final static String MARKET_END_TIME = "04:00 PM";
 	
@@ -26,6 +30,13 @@ public class Constants {
 
 	public final static String TRADE_START_DATE_PATTERN = "MM/dd/YYYY";
 	public final static DateFormat TRADE_DATE_FORMATTER = new SimpleDateFormat(TRADE_START_DATE_PATTERN);
+	
+	public final static String STOCK_PRICE_PATTERN = "#,##0.00";
+	public final static NumberFormat STOCK_PRICE_FORMATTER = new DecimalFormat(STOCK_PRICE_PATTERN);
+
+//	public final static String STOCK_VOLUME_PATTERN = "#,##0";
+	public final static String STOCK_VOLUME_PATTERN = "0";
+	public final static NumberFormat STOCK_VOLUME_FORMATTER = new DecimalFormat(STOCK_VOLUME_PATTERN);
 	
 	public final static String HISTORY_DATA_PATH = "D:/projects/DayTrader/design/";
 }
