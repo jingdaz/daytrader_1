@@ -2,14 +2,18 @@ package com.broadviewsoft.daytrader.service;
 
 import com.broadviewsoft.daytrader.domain.Period;
 
-public class TradeStrategy {
-	private Period period;
+public abstract class TradeStrategy  implements ITradeStrategy {
+	protected Period period;
 	
-	public TradeStrategy() {
-		
+	protected String description;
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
-	public void execute() {
-		
-	}
+	
 }

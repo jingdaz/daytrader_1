@@ -4,7 +4,6 @@ public class StockHolding {
 	private Stock stock;
 	private int quantity;
 	private double avgPrice;
-	private double curPrice;
 	
 	public StockHolding() {
 		
@@ -34,13 +33,5 @@ public class StockHolding {
 		this.avgPrice = avgPrice;
 	}
 
-	public double getCurPrice() {
-		return curPrice;
-	}
-
-	public void setCurPrice(double curPrice) {
-		this.curPrice = curPrice;
-	}
-	
 	
 }
