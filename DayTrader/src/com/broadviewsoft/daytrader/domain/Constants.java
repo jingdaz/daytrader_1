@@ -49,5 +49,5 @@ public class Constants {
 	public final static String STOCK_VOLUME_PATTERN = "0";
 	public final static NumberFormat STOCK_VOLUME_FORMATTER = new DecimalFormat(STOCK_VOLUME_PATTERN);
 	
-	public final static String HISTORY_DATA_PATH = "D:/projects/DayTrader/design/";
+	public final static String HISTORY_DATA_PATH = "D:/projects/daytrader_1/DayTrader/resources/";
 }

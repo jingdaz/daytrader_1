@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.broadviewsoft.daytrader.service.HistoryDataFileService;
 import com.broadviewsoft.daytrader.service.HistoryDataService;
+import com.broadviewsoft.daytrader.service.Util;
 
 public class DataFeeder {
 	private boolean prodMode = false;
@@ -68,7 +69,7 @@ public class DataFeeder {
 				return averagePrice(mins.get(i), mins.get(i + 1));
 			}
 		}
-		return result;
+		return Util.trim(result);
 	}
 
 	// FIXME StockItem timestamp cannot be null and list with size > 1
@@ -96,13 +97,13 @@ public class DataFeeder {
 	}
 
 	private double averagePrice(StockItem item1) {
-		return (item1.getHigh() + item1.getLow() + item1.getClose()) / 3.0;
+		return Util.trim((item1.getHigh() + item1.getLow() + item1.getClose()) / 3.0);
 	}
 
 	// FIXME ratio?
 	private double averagePrice(StockItem item1, StockItem item2) {
 		double avg1 = averagePrice(item1);
 		double avg2 = averagePrice(item2);
-		return (avg1 + avg2) / 2.0;
+		return Util.trim((avg1 + avg2) / 2.0);
 	}
 }

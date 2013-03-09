@@ -22,9 +22,13 @@ public class Broker {
 	 * @return
 	 */
 	public StockPrice getCurrentPrice(Stock stock, Date timestamp) {
+		double curPrice = dataFeeder.getPrice(stock.getSymbol(), timestamp);
+		if (curPrice <= 0) {
+			return null;
+		}
 		StockPrice sp = new StockPrice();
 		sp.setDealTime(timestamp);
-		sp.setPrice(dataFeeder.getPrice(stock.getSymbol(), timestamp));
+		sp.setPrice(curPrice);
 		return sp;
 	}
 
@@ -66,6 +70,10 @@ public class Broker {
 
 	private void fulfillOrder(Account account, Order order, Date clock) {
 		StockPrice sp = getCurrentPrice(order.getStock(), clock);
+		if (sp == null) {
+			System.out.println("No price for stock: " + order.getStock().getSymbol());
+			return;
+		}
 		switch (order.getTxType()) {
 		case BUY:
 			switch (order.getOrderType()) {
