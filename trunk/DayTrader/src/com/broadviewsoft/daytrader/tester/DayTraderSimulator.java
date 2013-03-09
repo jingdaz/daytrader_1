@@ -70,6 +70,7 @@ public class DayTraderSimulator {
 			}
 		}
 
+		account.showOrders();
 		account.showTransactions();
 		account.showHoldings();
 	}

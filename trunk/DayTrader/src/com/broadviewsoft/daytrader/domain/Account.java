@@ -183,6 +183,15 @@ public class Account {
 		System.out.println(Util.format(total) + "\r\n");
 	}
 
+	public void showOrders() {
+		System.out.println(Order.printHeaders(CurrencyType.USD));
+
+		// print out transaction details
+		for (Order order : orders) {
+			System.out.println(order);
+		}
+	}
+
 	public void showTransactions() {
 		System.out.println(Transaction.printHeaders(CurrencyType.USD));
 
@@ -191,4 +200,5 @@ public class Account {
 			System.out.println(tx);
 		}
 	}
+
 }

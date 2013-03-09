@@ -14,9 +14,13 @@ public class Util
     return Constants.STOCK_VOLUME_FORMATTER.format(price);
   }
 
-  public static String format(Date date) {
-	    return Constants.TX_DATE_FORMATTER.format(date);
-	  }
+	public static String format(Date date) {
+		return Constants.TX_DATE_FORMATTER.format(date);
+	}
+
+	public static double trim(double price) {
+		return ((int)(100*price))/100.0;
+	}
 
 }
  
