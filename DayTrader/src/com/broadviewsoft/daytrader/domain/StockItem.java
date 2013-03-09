@@ -2,6 +2,8 @@ package com.broadviewsoft.daytrader.domain;
 
 import java.util.Date;
 
+import com.broadviewsoft.daytrader.service.Util;
+
 public class StockItem {
 	private Stock stock;
 	private Date timestamp;
@@ -106,14 +108,6 @@ public class StockItem {
 		this.volume = volume;
 	}
 
-	public static String format(double price) {
-		return Constants.STOCK_PRICE_FORMATTER.format(price);
-	}
-	
-	public static String format(long price) {
-		return Constants.STOCK_VOLUME_FORMATTER.format(price);
-	}
-
 	public static String printHeaders(CurrencyType curType, String symbol, Period period) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(curType + "\t");
@@ -134,13 +128,13 @@ public class StockItem {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(timestamp + "\t");
-		sb.append(format(open) + "\t");
-		sb.append(format(high) + "\t");
-		sb.append(format(low) + "\t");
-		sb.append(format(close) + "\t");
-		sb.append(format(rsi) + "\t");
-		sb.append(format(cci) + "\t");
-		sb.append(format(volume) + "\t");
+		sb.append(Util.format(open) + "\t");
+		sb.append(Util.format(high) + "\t");
+		sb.append(Util.format(low) + "\t");
+		sb.append(Util.format(close) + "\t");
+		sb.append(Util.format(rsi) + "\t");
+		sb.append(Util.format(cci) + "\t");
+		sb.append(Util.format(volume) + "\t");
 		return sb.toString();
 	}
 

@@ -2,25 +2,28 @@ package com.broadviewsoft.daytrader.domain;
 
 import java.util.Date;
 
-public class Transaction {
-	private TransactionType type;
+import com.broadviewsoft.daytrader.service.Util;
+
+public class Transaction extends Order {
+	
 	private Date dealTime;
-	private String symbol;
-	private int quantity;
-	private double price;
+	private double dealPrice;
 	private double commission;
 	
 	public Transaction() {
 		
 	}
 
-	public TransactionType getType() {
-		return type;
-	}
-
-	public void setType(TransactionType type) {
-		this.type = type;
-	}
+  public Transaction(Order order) {
+    this.stock = order.stock;
+    this.orderTime = order.orderTime;
+    this.txType = order.txType;
+    this.orderType = order.orderType;
+    this.quantity = order.quantity;
+    this.limitPrice = order.limitPrice;
+    this.stopPrice = order.stopPrice;
+    this.status = OrderStatus.EXECUTED;
+  }
 
 	public Date getDealTime() {
 		return dealTime;
@@ -30,31 +33,17 @@ public class Transaction {
 		this.dealTime = dealTime;
 	}
 
-	public String getSymbol() {
-		return symbol;
-	}
+	public double getDealPrice()
+  {
+    return dealPrice;
+  }
 
-	public void setSymbol(String symbol) {
-		this.symbol = symbol;
-	}
+  public void setDealPrice(double dealPrice)
+  {
+    this.dealPrice = dealPrice;
+  }
 
-	public int getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-
-	public double getPrice() {
-		return price;
-	}
-
-	public void setPrice(double price) {
-		this.price = price;
-	}
-
-	public double getCommission() {
+  public double getCommission() {
 		return commission;
 	}
 
@@ -62,5 +51,29 @@ public class Transaction {
 		this.commission = commission;
 	}
 	
+	 public static String printHeaders(CurrencyType curType) {
+	    StringBuilder sb = new StringBuilder();
+	    sb.append("\r\nTime\t\t");
+	    sb.append("Tx Type\t\t");
+	    sb.append("Symbol\t");
+	    sb.append("Qty\t");
+//      sb.append(curType + "\t");
+	    sb.append("Price\t");
+	    sb.append("Fee\t");
+	    return sb.toString();
+	  }
+
+	public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(Util.format(dealTime) + "\t");
+    sb.append(txType + " ");
+    sb.append(orderType + "\t");
+    sb.append(stock.getSymbol() + "\t");
+    sb.append(Util.format(quantity) + "\t");    
+    // FIXME curType
+    sb.append(Util.format(dealPrice) + "\t");
+    sb.append(Util.format(commission) + "\t");
+    return sb.toString();
+  }
 	
 }
