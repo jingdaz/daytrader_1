@@ -2,7 +2,7 @@ package com.broadviewsoft.daytrader.domain;
 
 import java.util.Date;
 
-import com.broadviewsoft.daytrader.service.Util;
+import com.broadviewsoft.daytrader.util.Util;
 
 public class Order {
 	protected Stock stock;
@@ -86,6 +86,30 @@ public class Order {
 		this.stopPrice = stopPrice;
 	}
 
+	public static Order createOrder(Date orderTime, TransactionType txType,
+			OrderType orderType, int qty) {
+		return createOrder(orderTime, txType, orderType, qty, 0, 0);
+	}
+
+	public static Order createOrder(Date orderTime, TransactionType txType,
+			OrderType orderType, int qty, double limitPrice) {
+		return createOrder(orderTime, txType, orderType, qty, limitPrice, 0);
+	}
+
+	public static Order createOrder(Date orderTime, TransactionType txType,
+			OrderType orderType, int qty, double limitPrice, double stopPrice) {
+		Order order = new Order();
+		order.setOrderTime(orderTime);
+		order.setStock(new Stock("UVXY"));
+		order.setTxType(txType);
+		order.setStatus(OrderStatus.OPEN);
+		order.setOrderType(orderType);
+		order.setQuantity(qty);
+		order.setLimitPrice(limitPrice);
+		order.setStopPrice(stopPrice);
+		return order;
+	}
+
 	public static String printHeaders(CurrencyType curType) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("\r\nOrder Details\r\n");
@@ -93,9 +117,10 @@ public class Order {
 		sb.append("Tx Type\t\t");
 		sb.append("Symbol\t");
 		sb.append("Qty\t");
+		sb.append("Status\t\t");
 		// sb.append(curType + "\t");
 		sb.append("Limit\t");
-		sb.append("Stop\t");
+		sb.append("Stop\r\n");
 		return sb.toString();
 	}
 
@@ -105,6 +130,7 @@ public class Order {
 		sb.append(txType + " " + orderType + "\t");
 		sb.append(stock.getSymbol() + "\t");
 		sb.append(Util.format(quantity) + "\t");
+		sb.append(status + "\t");
 		// FIXME curType
 		if (limitPrice > 0) {
 			sb.append(Util.format(limitPrice));

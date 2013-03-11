@@ -4,9 +4,9 @@ public class StockHolding {
 	private Stock stock;
 	private int quantity;
 	private double avgPrice;
-	
+
 	public StockHolding() {
-		
+
 	}
 
 	public Stock getStock() {
@@ -33,5 +33,4 @@ public class StockHolding {
 		this.avgPrice = avgPrice;
 	}
 
-	
 }

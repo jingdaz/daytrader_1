@@ -5,9 +5,9 @@ import java.util.Date;
 public class TimedAccount {
 	private Date dateTime;
 	private Account account;
-	
+
 	public TimedAccount() {
-		
+
 	}
 
 	public Date getDateTime() {
@@ -25,11 +25,11 @@ public class TimedAccount {
 	public void setAccount(Account account) {
 		this.account = account;
 	}
-	
+
 	/**
 	 * Settlement now for next period
 	 */
 	public void nextPeriod(Period period) {
-		
+
 	}
 }

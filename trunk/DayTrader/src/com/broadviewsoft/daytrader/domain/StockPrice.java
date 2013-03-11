@@ -6,9 +6,9 @@ public class StockPrice {
 	private Stock stock;
 	private Date dealTime;
 	private double price;
-	
+
 	public StockPrice() {
-		
+
 	}
 
 	public Stock getStock() {
@@ -34,6 +34,5 @@ public class StockPrice {
 	public void setPrice(double price) {
 		this.price = price;
 	}
-	
-	
+
 }

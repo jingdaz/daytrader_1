@@ -1,8 +1,5 @@
 package com.broadviewsoft.daytrader.domain;
 
 public enum OrderType {
-	LIMIT,
-	MARKET,
-	STOP,
-	STOPLIMIT;
+	LIMIT, MARKET, STOP, STOPLIMIT;
 }

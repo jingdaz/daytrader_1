@@ -2,18 +2,29 @@ package com.broadviewsoft.daytrader.service;
 
 import com.broadviewsoft.daytrader.domain.Period;
 
-public abstract class TradeStrategy  implements ITradeStrategy {
-	protected Period period;
-	
-	protected String description;
+/**
+ * possible to mix strategies?
+ * 
+ * @author Jingda
+ *
+ */
+public abstract class TradeStrategy implements ITradeStrategy {
+	protected Period period = null;
+
+	public Period getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(Period period) {
+		this.period = period;
+	}
 
 	public String getDescription() {
-		return description;
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getSimpleName());
+		sb.append(" ");
+		sb.append(period);
+		return sb.toString();
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
-	
 }
