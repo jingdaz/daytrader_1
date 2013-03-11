@@ -2,7 +2,7 @@ package com.broadviewsoft.daytrader.domain;
 
 import java.util.Date;
 
-import com.broadviewsoft.daytrader.service.Util;
+import com.broadviewsoft.daytrader.util.Util;
 
 public class StockItem {
 	private Stock stock;
@@ -15,7 +15,7 @@ public class StockItem {
 	private double rsi;
 	private double cci;
 	private long volume;
-	
+
 	public StockItem() {
 		stock = new Stock("UVXY");
 		period = Period.MIN5;
@@ -30,11 +30,9 @@ public class StockItem {
 		return stock;
 	}
 
-
 	public void setStock(Stock stock) {
 		this.stock = stock;
 	}
-
 
 	public Date getTimestamp() {
 		return timestamp;
@@ -108,7 +106,8 @@ public class StockItem {
 		this.volume = volume;
 	}
 
-	public static String printHeaders(CurrencyType curType, String symbol, Period period) {
+	public static String printHeaders(CurrencyType curType, String symbol,
+			Period period) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(curType + "\t");
 		sb.append(symbol + "\t");
@@ -123,7 +122,6 @@ public class StockItem {
 		sb.append("Volume\t");
 		return sb.toString();
 	}
-
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

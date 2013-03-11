@@ -5,95 +5,57 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.broadviewsoft.daytrader.domain.Account;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import com.broadviewsoft.daytrader.domain.Constants;
-import com.broadviewsoft.daytrader.domain.Broker;
-import com.broadviewsoft.daytrader.domain.Period;
-import com.broadviewsoft.daytrader.domain.StockItem;
-import com.broadviewsoft.daytrader.domain.StockStatus;
-import com.broadviewsoft.daytrader.service.CciStrategy;
+import com.broadviewsoft.daytrader.service.DayTradeService;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
+import com.broadviewsoft.daytrader.service.impl.CciStrategy;
 
 /**
  * 
- * TODO
+ * Test driver to simulate Day Trade using this system
  * <P>
- * Insert the description here.
+ * Test driver to run backtest using this system to find an optimal strategy
  * </P>
  * <P>
  * <B>Creation date:</B> Mar 8, 2013 3:43:24 PM
  * </P>
  * 
- * @author 538601600
+ * @author Jason Zhang
  */
 public class DayTraderSimulator {
-	private Broker broker;
-	private Account account;
+	private static Log logger = LogFactory.getLog(DayTraderSimulator.class);
+
+	private DayTradeService dayTradeService = new DayTradeService();
 	private List<ITradeStrategy> strategies = new ArrayList<ITradeStrategy>();
-
-	public DayTraderSimulator() {
-		broker = new Broker();
-		account = new Account();
-		strategies.add(new CciStrategy());
+	
+	public List<ITradeStrategy> getStrategies() {
+		return strategies;
 	}
 
-	public void tradeDaily(ITradeStrategy strategy, Date tradeDate,
-			double preClose, double curOpen) {
-		account.init();
-		broker.addAccount(account);
-
-		account.showHoldings();
-		
-		// account.handleOverNight(preClose, curOpen);
-
-		String symbol = "UVXY";
-		Period period = Period.MIN5;
-
-		Date start = new Date(tradeDate.getTime() + Constants.MARKET_OPEN_TIME);
-		Date end = new Date(tradeDate.getTime() + Constants.MARKET_CLOSE_TIME);
-
-		Date now = start;
-		while (now.before(end)) {
-			for (int i = 0; i < period.minutes(); i++) {
-				if (i == 0) {
-					StockStatus status = analyze(symbol, period, now);
-					strategy.execute(status, account);
-				}
-				// check order execution after 1 minute - simulate slow order
-				// entry on mobile phone
-				else {
-					broker.checkOrder(now);
-				}
-				// advance 1 minute on clock
-				now = new Date(now.getTime()
-						+ Constants.MINUTE_IN_MILLI_SECONDS);
-			}
-		}
-
-		account.showOrders();
-		account.showTransactions();
-		account.showHoldings();
+	public void setStrategies(List<ITradeStrategy> strategies) {
+		this.strategies = strategies;
 	}
 
-	public StockStatus analyze(String symbol, Period period, Date date) {
-		StockStatus curStatus = new StockStatus(date);
-		List<StockItem> data = broker.collectData(symbol, period, date);
-		// TODO logic to figure out current status based on data
-		return curStatus;
+	public void addStrategies(ITradeStrategy strategy) {
+		strategies.add(strategy);
 	}
-
-	public void startup(Date tradeDate, double preClose, double curOpen) {
+	
+	public void simulate(Date tradeDate, String symbol, double curOpen) {
 		for (ITradeStrategy strategy : strategies) {
-			tradeDaily(strategy, tradeDate, preClose, curOpen);
+			logger.info("Applying strategy: " + strategy.getDescription() + "\r\n");
+			dayTradeService.tradeDaily(strategy, symbol, tradeDate, curOpen);
 		}
 	}
 
 	public static void main(String[] args) throws ParseException {
 		DayTraderSimulator simulator = new DayTraderSimulator();
-		double preClose = 9.91;
+		simulator.addStrategies(new CciStrategy());
+		String symbol = "UVXY";
 		double curOpen = 9.98;
 		Date tradeDate = Constants.TRADE_DATE_FORMATTER.parse("02/28/2013");
 
-		simulator.startup(tradeDate, preClose, curOpen);
+		simulator.simulate(tradeDate, symbol, curOpen);
 	}
 }

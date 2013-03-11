@@ -1,26 +1,40 @@
-package com.broadviewsoft.daytrader.domain;
+package com.broadviewsoft.daytrader.service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.broadviewsoft.daytrader.service.HistoryDataFileService;
-import com.broadviewsoft.daytrader.service.HistoryDataService;
-import com.broadviewsoft.daytrader.service.Util;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.broadviewsoft.daytrader.domain.DataException;
+import com.broadviewsoft.daytrader.domain.Period;
+import com.broadviewsoft.daytrader.domain.StockItem;
+import com.broadviewsoft.daytrader.service.impl.HistoryDataFileService;
+import com.broadviewsoft.daytrader.util.Util;
 
 public class DataFeeder {
+	private static Log logger = LogFactory.getLog(DataFeeder.class);
+
 	private boolean prodMode = false;
-	private HistoryDataService service = new HistoryDataFileService();
+	private IHistoryDataService service = new HistoryDataFileService();
 	List<StockItem> mins = new ArrayList<StockItem>();
 	List<StockItem> min5s = new ArrayList<StockItem>();
+	List<StockItem> days = new ArrayList<StockItem>();
 
 	public DataFeeder() {
 		this(false);
 	}
 
 	public DataFeeder(boolean prodMode) {
-		mins = service.loadData("UVXY", Period.MIN);
-		min5s = service.loadData("UVXY", Period.MIN5);
+		try {
+			mins = service.loadData("UVXY", Period.MIN);
+			min5s = service.loadData("UVXY", Period.MIN5);
+			days = service.loadData("UVXY", Period.DAY);
+			logger.info("Finished loading historical data.");
+		} catch (DataException e) {
+			logger.error("Error when loading historical data.", e);
+		}
 
 		this.prodMode = prodMode;
 	}
@@ -44,6 +58,27 @@ public class DataFeeder {
 			return findSubList(min5s, cutTime);
 		}
 		return result;
+	}
+
+	// FIXME StockItem timestamp cannot be null and mins with size > 1
+	public double getPreClose(String symbol, Date timestamp) {
+		if (timestamp == null || days.isEmpty()
+				|| timestamp.before(days.get(0).getTimestamp())) {
+			return 0;
+		}
+
+		if (timestamp.after(days.get(days.size() - 1).getTimestamp())) {
+			return 0;
+		}
+
+		for (int i = 0; i < days.size() - 1; i++) {
+			if (timestamp.equals(mins.get(i).getTimestamp())
+					|| (timestamp.after(days.get(i).getTimestamp()) && timestamp
+							.before(days.get(i + 1).getTimestamp()))) {
+				return Util.trim(days.get(i).getClose());
+			}
+		}
+		return 0;
 	}
 
 	// FIXME StockItem timestamp cannot be null and mins with size > 1
@@ -97,7 +132,8 @@ public class DataFeeder {
 	}
 
 	private double averagePrice(StockItem item1) {
-		return Util.trim((item1.getHigh() + item1.getLow() + item1.getClose()) / 3.0);
+		return Util
+				.trim((item1.getHigh() + item1.getLow() + item1.getClose()) / 3.0);
 	}
 
 	// FIXME ratio?

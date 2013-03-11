@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.broadviewsoft.daytrader.service.Util;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.broadviewsoft.daytrader.util.Util;
 
 public class Account {
-	private Long acctNbr;
-	private CurrencyType currencyType;
-	private double cashAmount;
+	private static Log logger = LogFactory.getLog(Account.class);
+
+	private Long acctNbr = Constants.DEFAULT_ACCOUNT_NUMBER;
+	private CurrencyType currencyType = CurrencyType.USD;
+	private double cashAmount = 0;
 
 	private List<StockHolding> holdings = new ArrayList<StockHolding>();
 	private List<Order> orders = new ArrayList<Order>();
@@ -31,17 +36,17 @@ public class Account {
 		}
 	}
 
-	/**
-	 * 
-	 */
-	public void handleOverNight(double preClose, double curOpen) {
-		double lockWinLimit = Math.min(Constants.LOCKWIN_PRE_CLOSE_FACTOR
-				* preClose, Constants.LOCKWIN_CUR_OPEN_FACTOR * curOpen);
-		double stopLoss = Constants.STOPLOSS_CUR_OPEN_FACTOR * curOpen;
-
-	}
-
 	public void placeOrder(Order order) {
+		Iterator<Order> it = orders.listIterator();
+		while (it.hasNext()) {
+			Order o = it.next();
+			if (o.getTxType() == order.getTxType()
+					&& o.getStatus() == OrderStatus.OPEN) {
+				// it.remove();
+				o.setStatus(OrderStatus.CANCELLED);
+				logger.info("Cancelling order placed on " + order.getOrderTime());
+			}
+		}
 		orders.add(order);
 	}
 
@@ -119,13 +124,14 @@ public class Account {
 
 					case SELL:
 						if (qty > sh.getQuantity()) {
-							System.out.println("Selling quantity exceeds holding in account: " + qty);
-						}
-						else {
+							System.out
+									.println("Selling quantity exceeds holding in account: "
+											+ qty);
+						} else {
 							cashAmount += qty * dealPrice;
 							int remaining = sh.getQuantity() - qty;
 							if (remaining == 0) {
-								it.remove();								
+								it.remove();
 							} else {
 								sh.setQuantity(remaining);
 							}
@@ -136,7 +142,7 @@ public class Account {
 				}
 			}
 		}
-		
+
 		// not in hand yet
 		else {
 			switch (type) {
@@ -150,7 +156,8 @@ public class Account {
 				break;
 
 			case SELL:
-				System.out.println("Error occurred when attempting to sell non-existing stock.");
+				System.out
+						.println("Error occurred when attempting to sell non-existing stock.");
 				break;
 			}
 		}
@@ -168,37 +175,44 @@ public class Account {
 	}
 
 	public void showHoldings() {
-		System.out.print("\r\nCash\t\t");
+		StringBuilder sb = new StringBuilder();
+		sb.append("\r\nCash\t\t");
 		for (StockHolding sh : holdings) {
-			System.out.print("Symbol\tQty\tPrice\t\t");
+			sb.append("Symbol\tQty\tPrice\t\t");
 		}
-		System.out.println("Total");
+		sb.append("Total\r\n");
 
-		System.out.print(Util.format(cashAmount) + "\t");
+		sb.append(Util.format(cashAmount) + "\t");
 		double total = cashAmount;
 		for (StockHolding sh : holdings) {
-			total += sh.getQuantity()*sh.getAvgPrice();
-			System.out.print(sh.getStock().getSymbol()  + "\t" + sh.getQuantity()  + "\t" + Util.format(sh.getAvgPrice()) + "\t\t");
+			total += sh.getQuantity() * sh.getAvgPrice();
+			sb.append(sh.getStock().getSymbol() + "\t" + sh.getQuantity()
+					+ "\t" + Util.format(sh.getAvgPrice()) + "\t\t");
 		}
-		System.out.println(Util.format(total) + "\r\n");
+		sb.append(Util.format(total) + "\r\n");
+		logger.info(sb.toString());
 	}
 
 	public void showOrders() {
-		System.out.println(Order.printHeaders(CurrencyType.USD));
+		StringBuilder sb = new StringBuilder();
+		sb.append(Order.printHeaders(CurrencyType.USD));
 
 		// print out transaction details
 		for (Order order : orders) {
-			System.out.println(order);
+			sb.append(order + "\r\n");
 		}
+		logger.info(sb.toString());
 	}
 
 	public void showTransactions() {
-		System.out.println(Transaction.printHeaders(CurrencyType.USD));
+		StringBuilder sb = new StringBuilder();
+		sb.append(Transaction.printHeaders(CurrencyType.USD));
 
 		// print out transaction details
 		for (Transaction tx : transactions) {
-			System.out.println(tx);
+			sb.append(tx + "\r\n");
 		}
+		logger.info(sb.toString());
 	}
 
 }

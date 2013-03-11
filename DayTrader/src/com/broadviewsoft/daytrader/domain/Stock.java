@@ -4,7 +4,7 @@ public class Stock {
 	private CurrencyType currencyType;
 	private String symbol;
 	private String companyName;
-	
+
 	public Stock() {
 		currencyType = CurrencyType.USD;
 	}
@@ -37,6 +37,5 @@ public class Stock {
 	public void setCompanyName(String companyName) {
 		this.companyName = companyName;
 	}
-	
-	
+
 }
