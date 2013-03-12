@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.broadviewsoft.daytrader.util.Util;
 
-public class StockItem {
+public class StockItem implements Comparable {
 	private Stock stock;
 	private Date timestamp;
 	private Period period;
@@ -135,5 +135,22 @@ public class StockItem {
 		sb.append(Util.format(volume) + "\t");
 		return sb.toString();
 	}
+
+  public int compareTo(Object o)
+  {
+    if (!(o instanceof StockItem)) {
+      throw new ClassCastException("Comparing objects with different types.");
+    }
+    StockItem other = (StockItem) o;
+    if (this.getCci() > other.getCci()) {
+      return 1;
+    }
+    
+    if (this.getCci() < other.getCci()) {
+      return -1;
+    }
+    
+    return 0;
+  }
 
 }

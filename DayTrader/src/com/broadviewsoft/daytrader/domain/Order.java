@@ -96,7 +96,7 @@ public class Order {
 		return createOrder(orderTime, txType, orderType, qty, limitPrice, 0);
 	}
 
-	public static Order createOrder(Date orderTime, TransactionType txType,
+	private static Order createOrder(Date orderTime, TransactionType txType,
 			OrderType orderType, int qty, double limitPrice, double stopPrice) {
 		Order order = new Order();
 		order.setOrderTime(orderTime);
@@ -114,7 +114,7 @@ public class Order {
 		StringBuilder sb = new StringBuilder();
 		sb.append("\r\nOrder Details\r\n");
 		sb.append("Time\t\t");
-		sb.append("Tx Type\t\t");
+		sb.append("Order Type\t");
 		sb.append("Symbol\t");
 		sb.append("Qty\t");
 		sb.append("Status\t\t");

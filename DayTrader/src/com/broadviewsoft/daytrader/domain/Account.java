@@ -36,6 +36,13 @@ public class Account {
 		}
 	}
 
+	 public void reset() {
+	    this.cashAmount = 0;
+	    this.orders.clear();
+	    this.transactions.clear();
+	    this.holdings.clear();
+	 }
+	 
 	public void placeOrder(Order order) {
 		Iterator<Order> it = orders.listIterator();
 		while (it.hasNext()) {
@@ -180,16 +187,25 @@ public class Account {
 		for (StockHolding sh : holdings) {
 			sb.append("Symbol\tQty\tPrice\t\t");
 		}
-		sb.append("Total\r\n");
-
+		sb.append("Total\t\t");
+    sb.append("Profit\r\n");
+    
 		sb.append(Util.format(cashAmount) + "\t");
+		if (cashAmount < 1000) {
+		  sb.append("\t");
+		}
 		double total = cashAmount;
 		for (StockHolding sh : holdings) {
 			total += sh.getQuantity() * sh.getAvgPrice();
 			sb.append(sh.getStock().getSymbol() + "\t" + sh.getQuantity()
 					+ "\t" + Util.format(sh.getAvgPrice()) + "\t\t");
 		}
-		sb.append(Util.format(total) + "\r\n");
+    sb.append(Util.format(total) + "\t");
+    double profit = total-Constants.INIT_CASH_AMOUNT;
+    if (Math.abs(profit) > 1) {
+      sb.append(Util.format(profit));
+    }
+    sb.append("\r\n");
 		logger.info(sb.toString());
 	}
 

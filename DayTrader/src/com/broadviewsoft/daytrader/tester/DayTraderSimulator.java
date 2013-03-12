@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.service.DayTradeService;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
@@ -30,6 +31,9 @@ public class DayTraderSimulator {
 	private DayTradeService dayTradeService = new DayTradeService();
 	private List<ITradeStrategy> strategies = new ArrayList<ITradeStrategy>();
 	
+	public DayTraderSimulator() {
+	}
+	
 	public List<ITradeStrategy> getStrategies() {
 		return strategies;
 	}
@@ -42,10 +46,10 @@ public class DayTraderSimulator {
 		strategies.add(strategy);
 	}
 	
-	public void simulate(Date tradeDate, String symbol, double curOpen) {
+	public void simulate(String symbol, Date startDate, Date endDate) {
 		for (ITradeStrategy strategy : strategies) {
 			logger.info("Applying strategy: " + strategy.getDescription() + "\r\n");
-			dayTradeService.tradeDaily(strategy, symbol, tradeDate, curOpen);
+			dayTradeService.trade(strategy, symbol, startDate, endDate);
 		}
 	}
 
@@ -53,9 +57,8 @@ public class DayTraderSimulator {
 		DayTraderSimulator simulator = new DayTraderSimulator();
 		simulator.addStrategies(new CciStrategy());
 		String symbol = "UVXY";
-		double curOpen = 9.98;
-		Date tradeDate = Constants.TRADE_DATE_FORMATTER.parse("02/28/2013");
-
-		simulator.simulate(tradeDate, symbol, curOpen);
+		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("03/01/2013");
+		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("03/04/2013");
+		simulator.simulate(symbol, startDate, endDate);
 	}
 }
