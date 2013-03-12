@@ -97,7 +97,8 @@ public class HistoryDataFileService implements IHistoryDataService {
 		CurrencyType curType = CurrencyType.USD;
 		String symbol = "UVXY";
 		// Period period = Period.MIN5;
-		Period period = Period.DAY;
+		// Period period = Period.DAY;
+		Period period = Period.MIN;
 		System.out.println(StockItem.printHeaders(curType, symbol, period));
 
 		// print out stock data

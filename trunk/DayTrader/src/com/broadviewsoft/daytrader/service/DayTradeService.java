@@ -1,7 +1,8 @@
 package com.broadviewsoft.daytrader.service;
 
+import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+import java.util.GregorianCalendar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -9,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 import com.broadviewsoft.daytrader.domain.Account;
 import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.Period;
-import com.broadviewsoft.daytrader.domain.StockItem;
 import com.broadviewsoft.daytrader.domain.StockStatus;
 import com.broadviewsoft.daytrader.service.BrokerService;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
@@ -37,16 +37,15 @@ public class DayTradeService {
 		account = new Account();
 	}
 
-	public void tradeDaily(ITradeStrategy strategy, String symbol, Date tradeDate,
-			double curOpen) {
+	public void tradeDaily(ITradeStrategy strategy, String symbol, Date tradeDate) {
 		Period period = strategy.getPeriod();
 
+		strategy.resetDailyStatus();
 		account.init();
 		broker.addAccount(account);
-
 		account.showHoldings();
 
-//		strategy.handleOverNight(account, symbol, tradeDate, curOpen);
+//		strategy.handleOverNight(account, symbol, tradeDate);
 
 		Date start = new Date(tradeDate.getTime() + Constants.MARKET_OPEN_TIME);
 		Date end = new Date(tradeDate.getTime() + Constants.MARKET_CLOSE_TIME);
@@ -55,7 +54,7 @@ public class DayTradeService {
 		while (now.before(end)) {
 			for (int i = 0; i < period.minutes(); i++) {
 				if (i == 0) {
-					StockStatus status = analyze(symbol, period, now);
+					StockStatus status = strategy.analyze(broker, symbol, period, now);
 					strategy.execute(status, account);
 				}
 				// check order execution after 1 minute - simulate slow order
@@ -69,16 +68,38 @@ public class DayTradeService {
 			}
 		}
 
-		account.showOrders();
+//		account.showOrders();
 		account.showTransactions();
 		account.showHoldings();
+		// reset account for future
+		account.reset();
 	}
 
-	public StockStatus analyze(String symbol, Period period, Date date) {
-		StockStatus curStatus = new StockStatus(date);
-		List<StockItem> data = broker.collectData(symbol, period, date);
-		// TODO logic to figure out current status based on data
-		return curStatus;
-	}
+  /**
+	 * 
+	 * @param strategy
+	 * @param symbol
+	 * @param startDate
+	 * @param endDate
+	 */
+  public void trade(ITradeStrategy strategy, String symbol, Date startDate, Date endDate)
+  {
+    Date today = startDate;
+    while (!today.after(endDate)) {
+      logger.info("Simulating " + today);
+      Calendar cal = new GregorianCalendar();
+      cal.setTime(today);
+      int day = cal.get(Calendar.DAY_OF_WEEK);
+      if (day == Calendar.SUNDAY || day == Calendar.SATURDAY
+          || Constants.MARKET_CLOSE_DAYS.contains(today)) {
+        logger.info("Market is closed today; Skipped.");
+      }
+      else {
+        tradeDaily(strategy, symbol, today);
+      }
+      today = new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS);
+    }
+   
+  }
 
 }

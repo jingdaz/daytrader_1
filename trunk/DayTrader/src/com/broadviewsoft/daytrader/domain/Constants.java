@@ -3,9 +3,18 @@ package com.broadviewsoft.daytrader.domain;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class Constants {
+  private static Log logger = LogFactory.getLog(Constants.class);
+  
 	public final static long DEFAULT_ACCOUNT_NUMBER = 93345;
 
 	public final static boolean PROD_MODE = false;
@@ -14,6 +23,20 @@ public class Constants {
 	public final static String STOCK_DATA_FILE_EXTENSION = ".csv";
 
 	public final static long MINUTE_IN_MILLI_SECONDS = 60 * 1000;
+	public final static long DAY_IN_MILLI_SECONDS = 24 * 60 * 60 * 1000;
+	
+	public final static int STATUS_QUEUE_DEPTH = 4;
+	public final static int STATUS_INTERVAL = 36;
+	public final static int DEFAULT_QUANTITY = 1000;
+	
+	
+	public final static double CCI_TOP_DIVERGENCE = 100;
+	public final static double CCI_BOTTOM_DIVERGENCE = -100;
+	
+	public final static double CCI_WEAKEST_LIMIT = 25;
+	public final static double CCI_STRONGEST_LIMIT = -25;
+
+	public final static String[] MARKET_HOLIDAYS = {"01/01/2013", "02/18/2013"};
 
 	public final static int INIT_CASH_AMOUNT = 12000;
 	// public final static String[] INIT_STOCK_SYMBOLS = {"UVXY"};
@@ -60,4 +83,19 @@ public class Constants {
 			STOCK_VOLUME_PATTERN);
 
 	public final static String HISTORY_DATA_PATH = "D:/projects/DayTrader/resources/";
+	
+	public static List<Date> MARKET_CLOSE_DAYS = new ArrayList<Date>();
+	
+	static {
+	  for (int i=0; i<MARKET_HOLIDAYS.length; i++) {
+	    try
+      {
+        MARKET_CLOSE_DAYS.add(Constants.TRADE_DATE_FORMATTER.parse(MARKET_HOLIDAYS[i]));
+      }
+      catch (ParseException e)
+      {
+        logger.error("Error when parsing market holidays.");
+      }
+	  }
+	}
 }
