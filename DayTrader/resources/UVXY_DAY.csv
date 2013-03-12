@@ -1,4 +1,4 @@
-Date,Open,High,Low,Close,Wilder's RSI 14,Commodity Channel Index (CCI) 20,Volume 
+Timestamp,Open,High,Low,Close,Rsi,Cci,Volume
 10/4/2011 12:00:00 AM,2427,2448,2058,2058,0,0,100
 10/5/2011 12:00:00 AM,1974.6,1989,1813.8,1813.8,0,0,0
 10/6/2011 12:00:00 AM,1811.4,1878,1740,1740,0,0,500
