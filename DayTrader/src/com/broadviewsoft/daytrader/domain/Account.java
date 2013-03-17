@@ -1,6 +1,7 @@
 package com.broadviewsoft.daytrader.domain;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class Account {
 	private Long acctNbr = Constants.DEFAULT_ACCOUNT_NUMBER;
 	private CurrencyType currencyType = CurrencyType.USD;
 	private double cashAmount = 0;
+	private double initialAmount = 0;
 
 	private List<StockHolding> holdings = new ArrayList<StockHolding>();
 	private List<Order> orders = new ArrayList<Order>();
@@ -24,26 +26,28 @@ public class Account {
 
 	}
 
-	public void init() {
+	public void init(double preClose, Date today) {
 		cashAmount = Constants.INIT_CASH_AMOUNT;
 		for (int i = 0; i < Constants.INIT_STOCK_SYMBOLS.length; i++) {
-			Stock stock = new Stock();
+			Stock stock = new Stock(Constants.INIT_STOCK_SYMBOLS[i]);
 			StockHolding sh = new StockHolding();
 			sh.setStock(stock);
 			sh.setQuantity(Constants.INIT_STOCK_VOLUMES[i]);
-			sh.setAvgPrice(Constants.INIT_STOCK_PRICES[i]);
+			sh.setAvgPrice(preClose);
 			holdings.add(sh);
 		}
+		// record initial amount in total
+		initialAmount = getTotal();
 	}
 
 	 public void reset() {
-	    this.cashAmount = 0;
+	    this.cashAmount = Constants.INIT_CASH_AMOUNT;
 	    this.orders.clear();
 	    this.transactions.clear();
 	    this.holdings.clear();
 	 }
 	 
-	public void placeOrder(Order order) {
+	public void placeOrder(Date now, Order order) {
 		Iterator<Order> it = orders.listIterator();
 		while (it.hasNext()) {
 			Order o = it.next();
@@ -51,7 +55,7 @@ public class Account {
 					&& o.getStatus() == OrderStatus.OPEN) {
 				// it.remove();
 				o.setStatus(OrderStatus.CANCELLED);
-				logger.info("Cancelling order placed on " + order.getOrderTime());
+				logger.info("[" + Util.format(now) + "] Cancelling order placed on [" + Util.format(order.getOrderTime()) + "]");
 			}
 		}
 		orders.add(order);
@@ -105,6 +109,16 @@ public class Account {
 		this.transactions = transactions;
 	}
 
+	public StockHolding getHolding(Stock stock) {
+	  for (StockHolding sh : holdings) {
+	    if (sh.getStock().getSymbol().equalsIgnoreCase(stock.getSymbol())) {
+	      return sh;
+	    }
+	  }
+	  return null;
+	}
+	
+	
 	public void updateHoldings(Transaction tx) {
 		Stock stock = tx.getStock();
 		TransactionType type = tx.getTxType();
@@ -131,8 +145,7 @@ public class Account {
 
 					case SELL:
 						if (qty > sh.getQuantity()) {
-							System.out
-									.println("Selling quantity exceeds holding in account: "
+						  logger.info("Selling quantity exceeds holding in account: "
 											+ qty);
 						} else {
 							cashAmount += qty * dealPrice;
@@ -163,8 +176,7 @@ public class Account {
 				break;
 
 			case SELL:
-				System.out
-						.println("Error occurred when attempting to sell non-existing stock.");
+			  logger.error("Error occurred when attempting to sell non-existing stock.");
 				break;
 			}
 		}
@@ -181,6 +193,14 @@ public class Account {
 		return false;
 	}
 
+	public double getTotal() {
+	   double total = cashAmount;
+	    for (StockHolding sh : holdings) {
+	      total += sh.getQuantity() * sh.getAvgPrice();
+	    }
+	    return total;
+	}
+	
 	public void showHoldings() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("\r\nCash\t\t");
@@ -188,20 +208,27 @@ public class Account {
 			sb.append("Symbol\tQty\tPrice\t\t");
 		}
 		sb.append("Total\t\t");
-    sb.append("Profit\r\n");
+		sb.append("Fee\t\t");
+    sb.append("Profit");
+    sb.append("\r\n");
     
 		sb.append(Util.format(cashAmount) + "\t");
 		if (cashAmount < 1000) {
 		  sb.append("\t");
 		}
-		double total = cashAmount;
+
 		for (StockHolding sh : holdings) {
-			total += sh.getQuantity() * sh.getAvgPrice();
 			sb.append(sh.getStock().getSymbol() + "\t" + sh.getQuantity()
 					+ "\t" + Util.format(sh.getAvgPrice()) + "\t\t");
 		}
-    sb.append(Util.format(total) + "\t");
-    double profit = total-Constants.INIT_CASH_AMOUNT;
+		double totalAmount = getTotal();
+    sb.append(Util.format(totalAmount) + "\t");
+    double fees = getTransactions().size()*Constants.COMMISSION_FEE;
+    if (fees > 0) {
+      sb.append(Util.format(fees));
+    }
+    sb.append("\t\t");
+    double profit = totalAmount-initialAmount-fees;
     if (Math.abs(profit) > 1) {
       sb.append(Util.format(profit));
     }

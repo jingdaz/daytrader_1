@@ -106,6 +106,10 @@ public class StockItem implements Comparable {
 		this.volume = volume;
 	}
 
+	public double getTypical() {
+	  return (high + low + close)/3;
+	}
+	
 	public static String printHeaders(CurrencyType curType, String symbol,
 			Period period) {
 		StringBuilder sb = new StringBuilder();
@@ -151,6 +155,33 @@ public class StockItem implements Comparable {
     }
     
     return 0;
+  }
+
+  public String toString(DataFileType type) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(Util.format(timestamp) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(open) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(high) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(low) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(close) + Constants.CSV_SEPARATOR);
+		if (type == DataFileType.BVS) {
+			sb.append(Util.format(cci) + Constants.CSV_SEPARATOR);
+		}
+		sb.append(Util.format(volume) + "\r\n");
+		return sb.toString();
+  }
+
+  public String toBVSString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(Util.format(timestamp) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(open) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(high) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(low) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(close) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(volume) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(rsi) + Constants.CSV_SEPARATOR);
+		sb.append(Util.format(cci) +  "\r\n");
+		return sb.toString();
   }
 
 }

@@ -9,9 +9,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.domain.Constants;
-import com.broadviewsoft.daytrader.service.DayTradeService;
+import com.broadviewsoft.daytrader.service.TradePlatform;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
 import com.broadviewsoft.daytrader.service.impl.CciStrategy;
+import com.broadviewsoft.daytrader.service.impl.RsiStrategy;
 
 /**
  * 
@@ -28,7 +29,7 @@ import com.broadviewsoft.daytrader.service.impl.CciStrategy;
 public class DayTraderSimulator {
 	private static Log logger = LogFactory.getLog(DayTraderSimulator.class);
 
-	private DayTradeService dayTradeService = new DayTradeService();
+	private TradePlatform tradePlatform = new TradePlatform();
 	private List<ITradeStrategy> strategies = new ArrayList<ITradeStrategy>();
 	
 	public DayTraderSimulator() {
@@ -48,17 +49,20 @@ public class DayTraderSimulator {
 	
 	public void simulate(String symbol, Date startDate, Date endDate) {
 		for (ITradeStrategy strategy : strategies) {
-			logger.info("Applying strategy: " + strategy.getDescription() + "\r\n");
-			dayTradeService.trade(strategy, symbol, startDate, endDate);
+			logger.info("\r\nApplying strategy (" + strategy.getDescription() + ") for " + symbol);
+			tradePlatform.trade(strategy, symbol, startDate, endDate);
 		}
 	}
 
 	public static void main(String[] args) throws ParseException {
 		DayTraderSimulator simulator = new DayTraderSimulator();
 		simulator.addStrategies(new CciStrategy());
-		String symbol = "UVXY";
-		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("03/01/2013");
-		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("03/04/2013");
-		simulator.simulate(symbol, startDate, endDate);
+//		simulator.addStrategies(new RsiStrategy());
+		String[] symbols = Constants.INIT_STOCK_SYMBOLS;
+		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("01/30/2013");
+		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("03/15/2013");
+		for (String symbol : symbols) {
+		  simulator.simulate(symbol, startDate, endDate);
+		}
 	}
 }

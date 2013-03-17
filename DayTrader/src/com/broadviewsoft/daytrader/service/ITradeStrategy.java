@@ -23,7 +23,7 @@ public interface ITradeStrategy {
 	public StockStatus analyze(BrokerService broker, String symbol, Period period, Date date);
 	
 	/* Handle over night holdings if any */
-	public void handleOverNight(Account account, String symbol, Date timestamp);
+	public void handleOverNight(Account account, String symbol, Date timestamp, double preClose, double curOpen);
 	
 	/* Execute strategy based on status analysis */
 	public void execute(StockStatus status, Account account);

@@ -10,9 +10,11 @@ import org.apache.commons.logging.LogFactory;
 import com.broadviewsoft.daytrader.domain.Account;
 import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.Period;
+import com.broadviewsoft.daytrader.domain.PriceType;
 import com.broadviewsoft.daytrader.domain.StockStatus;
 import com.broadviewsoft.daytrader.service.BrokerService;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
+import com.broadviewsoft.daytrader.util.Util;
 
 /**
  * 
@@ -26,13 +28,13 @@ import com.broadviewsoft.daytrader.service.ITradeStrategy;
  * 
  * @author Jason Zhang
  */
-public class DayTradeService {
-	private static Log logger = LogFactory.getLog(DayTradeService.class);
+public class TradePlatform {
+	private static Log logger = LogFactory.getLog(TradePlatform.class);
 
 	private BrokerService broker = null;
 	private Account account = null;
 
-	public DayTradeService() {
+	public TradePlatform() {
 		broker = new BrokerService();
 		account = new Account();
 	}
@@ -41,29 +43,31 @@ public class DayTradeService {
 		Period period = strategy.getPeriod();
 
 		strategy.resetDailyStatus();
-		account.init();
-		broker.addAccount(account);
+		Date yesterday = new Date(tradeDate.getTime() - Constants.DAY_IN_MILLI_SECONDS);
+    double preClose = broker.getDataFeeder().getPrice(symbol, yesterday, PriceType.Close);
+    double curOpen = broker.getDataFeeder().getPrice(symbol, tradeDate, PriceType.Open);
+    
+		account.init(preClose, tradeDate);
+		broker.registerAccount(account);
 		account.showHoldings();
 
-//		strategy.handleOverNight(account, symbol, tradeDate);
+		strategy.handleOverNight(account, symbol, tradeDate, preClose, curOpen);
 
 		Date start = new Date(tradeDate.getTime() + Constants.MARKET_OPEN_TIME);
 		Date end = new Date(tradeDate.getTime() + Constants.MARKET_CLOSE_TIME);
 
-		Date now = start;
-		while (now.before(end)) {
+		Date today = start;
+		while (today.before(end)) {
 			for (int i = 0; i < period.minutes(); i++) {
+			  broker.checkOrder(today);
 				if (i == 0) {
-					StockStatus status = strategy.analyze(broker, symbol, period, now);
+					StockStatus status = strategy.analyze(broker, symbol, period, today);
+		       // check order execution after 1 minute - simulate slow order
+	        // entry on mobile phone
 					strategy.execute(status, account);
 				}
-				// check order execution after 1 minute - simulate slow order
-				// entry on mobile phone
-				else {
-					broker.checkOrder(now);
-				}
 				// advance 1 minute on clock
-				now = new Date(now.getTime()
+				today = new Date(today.getTime()
 						+ Constants.MINUTE_IN_MILLI_SECONDS);
 			}
 		}
@@ -86,7 +90,7 @@ public class DayTradeService {
   {
     Date today = startDate;
     while (!today.after(endDate)) {
-      logger.info("Simulating " + today);
+      logger.info("Simulating " + Constants.TRADE_DATE_FORMATTER.format(today));
       Calendar cal = new GregorianCalendar();
       cal.setTime(today);
       int day = cal.get(Calendar.DAY_OF_WEEK);
@@ -97,7 +101,7 @@ public class DayTradeService {
       else {
         tradeDaily(strategy, symbol, today);
       }
-      today = new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS);
+      today = Util.convertDST(new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS));
     }
    
   }
