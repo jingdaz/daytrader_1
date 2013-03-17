@@ -88,9 +88,9 @@ public void setChartItems(LinkedList<StockItem> items)
 	     }
 	  }
 
-	  // drops from CCI >= 100
+	  // drops from CCI >= 100/2
 	  return ((chartItems.get(capacity-1).compareTo(chartItems.get(capacity-2)) < 0)
-	  && chartItems.get(capacity-2).getCci() > Constants.CCI_TOP_DIVERGENCE);
+	  && chartItems.get(capacity-2).getCci() > Constants.CCI_TOP_DIVERGENCE/2);
 	}
 	
 	public boolean picksBtmDvg() {
@@ -100,8 +100,8 @@ public void setChartItems(LinkedList<StockItem> items)
       }
    }
 
-   // picks up from CCI <= -100
+   // picks up from CCI <= -100/2
    return ((chartItems.get(capacity-1).compareTo(chartItems.get(capacity-2)) > 0)
-   && chartItems.get(capacity-2).getCci() < Constants.CCI_BOTTOM_DIVERGENCE);
+   && chartItems.get(capacity-2).getCci() < Constants.CCI_BOTTOM_DIVERGENCE/2);
 	}
 }
