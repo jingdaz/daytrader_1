@@ -3,6 +3,8 @@
 
 - trade with whole holding so far. sell-buy or buy-sell switch
 
+- apply substraction, i.e., reserve more tx points first, then filter out bad ones.
+
 - add more when breaking out?
 
 - mix strategy in future?
@@ -49,3 +51,20 @@ There are four steps to calculating the Mean Deviation:
 2) Take the absolute values of these numbers,
 3) Sum the absolute values,
 4) Divide by the total number of periods (20). 
+
+
+Where to get stock intraday data for free?
+How to free download last one month intraday data from Google finance?
+ In Google finance, we can view even the intra-day stock chart for last one month may be even more for 1 minute time interval. As we increase the time interval the view span can be increased significantly. But there is no link to download this data directly.  I dig into Google finance and find out something very interesting. Whatever the chart you can see for an individual symbol, you can  download it also but with a little pain than yahoo finance  For intraday or 1min, 5 min, 30 min or 1 hr interval there is no way we can download it from yahoo finance. So here comes the Google finance to help us out.
+Copy the link below and paste into the browser
+http://www.google.com/finance/getprices?q=SUZLON&x=NSE&i=120&p=1000d&f=d,c,o,h,l&df=cpct&auto=1&ts=1266701290218
+http://www.google.com/finance/getprices?q=AAPL&x=NASD&i=120&sessions=ext_hours&p=5d&f=d,c,v,o,h,l&df=cpct&auto=1&ts=1324323553905
+https://www.google.com/finance/getprices?i=60&p=1d&f=d,o,h,l,c,v&df=cpct&q=UVXY
+q= stock symbol on Google finance
+x= exchange symbol
+sessions is the session requested (ext_hours) 
+i= interval (here 1=120 means 120 sec (2 minute interval))
+p= no of period
+f= parameters (day, close, open, high and low)
+df= difference (cpct is may be in % change , not sure)
+ts = time start... if you cut the last 4 digits...the rest gives the start day in seconds
