@@ -14,11 +14,7 @@ public class TestDate
    */
   public static void main(String[] args) throws ParseException
   {
-    DateFormat df = new SimpleDateFormat("m/d/yyyy");
-    Date first = df.parse("1/1/1970");
-    long sec = first.getTime();
-    System.out.println("first in milli-seconds " + sec);
-    Date d = new Date((long)1363354200*1000);
+    Date d = new Date((long)1363613400*1000);
     System.out.println("date is " + d);
 
   }
