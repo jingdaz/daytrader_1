@@ -103,6 +103,8 @@ public class Constants {
 	// http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct&i=60&q=UVXY
 	public final static String HISTORY_DATA_GOOGLE_SITE = "http://www.google.com/finance/getprices?p=2d&f=d,o,h,l,c,v&df=cpct";
 
+	public static final double[] PREDICT_OPEN_FACTORS = {0.10, 0.05, 0.02, 0, -0.02, -0.05, -0.10};
+
 	public static List<Date> MARKET_CLOSE_DAYS = new ArrayList<Date>();
 
 	static {

@@ -2,7 +2,9 @@ package com.broadviewsoft.daytrader.tester;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -67,12 +69,12 @@ public class DayTraderPredictor {
 	}
 
 	public void predict(String symbol) {
-		Date today = new Date();
-		Date yesterday = new Date(tradeDate.getTime()
-				- Constants.DAY_IN_MILLI_SECONDS);
-		double preClose = broker.getDataFeeder().getPrice(symbol, yesterday,
-				PriceType.Close);
-		account.init(preClose, tradeDate);
+		Calendar cal = Calendar.getInstance();
+		Calendar calToday = new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+		Date today = calToday.getTime();
+		Date yesterday = new Date(calToday.getTimeInMillis() - Constants.DAY_IN_MILLI_SECONDS);
+		double preClose = broker.getDataFeeder().getPrice(symbol, yesterday, PriceType.Close);
+		account.init(preClose, today);
 
 		double[] curOpens = new double[8];
 		for (int i = 0; i < Constants.PREDICT_OPEN_FACTORS.length; i++) {
