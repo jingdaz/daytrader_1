@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.supercsv.cellprocessor.Optional;
 import org.supercsv.cellprocessor.ParseDate;
 import org.supercsv.cellprocessor.ParseDouble;
 import org.supercsv.cellprocessor.constraint.NotNull;
@@ -95,7 +96,7 @@ public class HistoryDataFileService implements IHistoryDataService {
 					new NotNull(new ParseDouble()), // high
 					new NotNull(new ParseDouble()), // low
 					new NotNull(new ParseDouble()), // close
-//					new Optional(new ParseDouble()), // rsi
+					new Optional(new ParseDouble()), // rsi
 					new NotNull(new ParseDouble()), // cci
 					new LMinMax(0L, LMinMax.MAX_LONG) // volume
 			};
