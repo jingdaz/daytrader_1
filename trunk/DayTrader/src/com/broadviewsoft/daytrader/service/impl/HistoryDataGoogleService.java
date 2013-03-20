@@ -26,6 +26,7 @@ import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.StockItem;
 import com.broadviewsoft.daytrader.service.CCIService;
 import com.broadviewsoft.daytrader.service.IHistoryDataService;
+import com.broadviewsoft.daytrader.service.RSIService;
 import com.broadviewsoft.daytrader.util.Util;
 
 public class HistoryDataGoogleService implements IHistoryDataService {
@@ -213,6 +214,7 @@ public class HistoryDataGoogleService implements IHistoryDataService {
 			logger.info("\r\nworking on " + p.name());
 			gfService.loadData(symbol, p, DataFileType.GF);
 			result = fileService.loadData(symbol, p, DataFileType.GF);
+      RSIService.calculateRsi(Constants.RSI_INTERVAL, result);
 			CCIService.calculateCci(Constants.CCI_INTERVAL, result);
 			gfService.appendToFile(symbol, p, result, DataFileType.BVS);
 		}

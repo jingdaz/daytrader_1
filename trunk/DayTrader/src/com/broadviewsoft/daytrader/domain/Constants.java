@@ -52,7 +52,10 @@ public class Constants {
 
 	/* CCI Constant */
 	public static final double CCI_FACTOR = 0.015;
+	public static final double RSI_FACTOR = 100;
+  public static final int RSI_INTERVAL = 14;
 	public static final int CCI_INTERVAL = 20;
+
 
 	public final static String[] MARKET_HOLIDAYS = { "01/01/2013", "02/18/2013" };
 
