@@ -13,7 +13,14 @@ public class RSIService
 {
   private static Log logger = LogFactory.getLog(RSIService.class);
 
-  public static double[] calculateRsi(int interval, List<StockItem> items)
+  public static void calculateRsi(int interval, List<StockItem> items) {
+    double[] rsis = calcRsi(interval, items);
+    for (int i = 0; i < items.size(); i++) {
+      items.get(i).setRsi(rsis[i]);
+    }
+  }
+
+  private static double[] calcRsi(int interval, List<StockItem> items)
   {
     double[] rsi = new double[items.size()];
     double[] rs = new double[items.size()];
@@ -110,7 +117,7 @@ public class RSIService
       si.setClose(d);
       items.add(si);
     }
-    double[] result = calculateRsi(14, items);
+    calculateRsi(14, items);
   }
 
 }

@@ -165,6 +165,7 @@ public class StockItem implements Comparable {
 		sb.append(Util.format(low) + Constants.CSV_SEPARATOR);
 		sb.append(Util.format(close) + Constants.CSV_SEPARATOR);
 		if (type == DataFileType.BVS) {
+      sb.append(Util.format(rsi) + Constants.CSV_SEPARATOR);
 			sb.append(Util.format(cci) + Constants.CSV_SEPARATOR);
 		}
 		sb.append(Util.format(volume) + "\r\n");
