@@ -208,8 +208,8 @@ public class HistoryDataGoogleService implements IHistoryDataService {
 		HistoryDataFileService fileService = new HistoryDataFileService();
 		List<StockItem> result = null;
 		String symbol = "UVXY";
-//		Period[] ps = {Period.DAY};
-		Period[] ps = Period.values();
+		Period[] ps = {Period.MIN5};
+//		Period[] ps = Period.values();
 		for (Period p : ps) {
 			logger.info("\r\nworking on " + p.name());
 			gfService.loadData(symbol, p, DataFileType.GF);

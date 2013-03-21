@@ -31,36 +31,40 @@ public class CciStrategy extends TradeStrategy {
 		dataFeeder.init(Constants.INIT_STOCK_SYMBOLS);
 	}
 
-	public void execute(StockStatus stockStatus, Account account)
-  {
-    // Top divergence: drops from CCI >= 100
-	  double cciSlope = (stockStatus.getCurItem().getCci()-stockStatus.getPreHigh().getCci())/stockStatus.getPreHigh().getCci();
-	  double priceSlope = (stockStatus.getCurItem().getTypical()-stockStatus.getPreHigh().getTypical())/stockStatus.getPreHigh().getTypical();
-	  
-	  
-    if ((!account.getHoldings().isEmpty() && !dailyStatus.isWeakest() && stockStatus.dropsTopDvg())
-    		&& (stockStatus.getCurItem().getCci() > Constants.CCI_TOP_DIVERGENCE || stockStatus.getCurItem().compareTo(stockStatus.getPreHigh())<0)
-    		&& cciSlope<priceSlope)
-    {
-      Order sell = Order.createOrder(stockStatus.getTimestamp(), TransactionType.SELL, OrderType.MARKET, Constants.DEFAULT_QUANTITY);
-      account.placeOrder(stockStatus.getTimestamp(), sell);
-      logger.debug("\tPlacing Market Sell order at " + stockStatus.getTimestamp());
-    }
-    // Bottom divergence: picks up from CCI <= -100
-    if ((account.getHoldings().isEmpty() && !dailyStatus.isWeakest() && stockStatus.picksBtmDvg()) 
-    		&& (stockStatus.getCurItem().getCci() < Constants.CCI_BOTTOM_DIVERGENCE	|| stockStatus.getCurItem().compareTo(stockStatus.getPreLow())>0)
-    		&& cciSlope>priceSlope)
-    {
-      Order buy = Order.createOrder(stockStatus.getTimestamp(), TransactionType.BUY, OrderType.MARKET, Constants.DEFAULT_QUANTITY);
-      account.placeOrder(stockStatus.getTimestamp(), buy);
-      logger.debug("\tPlacing Market Buy order at " + stockStatus.getTimestamp());
-    }
+	public void execute(StockStatus stockStatus, Account account) {
+		// Top divergence: drops from CCI >= 100
+		double cciSlope = (stockStatus.getCurItem().getCci() - stockStatus
+				.getPreHigh().getCci()) / stockStatus.getPreHigh().getCci();
+		double priceSlope = (stockStatus.getCurItem().getTypical() - stockStatus
+				.getPreHigh().getTypical())
+				/ stockStatus.getPreHigh().getTypical();
 
-  }
+		if ((!account.getHoldings().isEmpty() && !dailyStatus.isWeakest() && stockStatus
+				.dropsTopDvg())
+				&& (stockStatus.getCurItem().getCci() > Constants.CCI_TOP_DIVERGENCE || stockStatus
+						.getCurItem().compareTo(stockStatus.getPreHigh()) < 0)
+				&& cciSlope < priceSlope) {
+			Order sell = Order.createOrder(stockStatus.getTimestamp(),
+					TransactionType.SELL, OrderType.MARKET,
+					Constants.DEFAULT_QUANTITY);
+			account.placeOrder(stockStatus.getTimestamp(), sell);
+		}
+		// Bottom divergence: picks up from CCI <= -100
+		if ((account.getHoldings().isEmpty() && !dailyStatus.isWeakest() && stockStatus
+				.picksBtmDvg())
+				&& (stockStatus.getCurItem().getCci() < Constants.CCI_BOTTOM_DIVERGENCE || stockStatus
+						.getCurItem().compareTo(stockStatus.getPreLow()) > 0)
+				&& cciSlope > priceSlope) {
+			Order buy = Order.createOrder(stockStatus.getTimestamp(),
+					TransactionType.BUY, OrderType.MARKET,
+					Constants.DEFAULT_QUANTITY);
+			account.placeOrder(stockStatus.getTimestamp(), buy);
+		}
 
-	public void handleOverNight(Account account, String symbol, Date timestamp, double preClose, double curOpen) {
-		
+	}
 
+	public void handleOverNight(Account account, String symbol, Date timestamp,
+			double preClose, double curOpen) {
 		List<StockHolding> holdings = account.getHoldings();
 		for (StockHolding sh : holdings) {
 			// holding over night
@@ -75,7 +79,6 @@ public class CciStrategy extends TradeStrategy {
 							TransactionType.SELL, OrderType.LIMIT,
 							sh.getQuantity(), lockWinLimit);
 					account.placeOrder(timestamp, newOrder);
-					logger.debug("\tPlacing Limit Sell order at " + timestamp);
 				}
 				// Open low, set stop order
 				else if (result < 0) {
@@ -85,7 +88,6 @@ public class CciStrategy extends TradeStrategy {
 							TransactionType.SELL, OrderType.STOP,
 							sh.getQuantity(), stopLoss);
 					account.placeOrder(timestamp, newOrder);
-					logger.debug("\tPlacing Stop Sell order at " + timestamp);
 				}
 				// Open flat, wait for chances
 			}

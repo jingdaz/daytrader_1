@@ -55,10 +55,11 @@ public class Account {
 					&& o.getStatus() == OrderStatus.OPEN) {
 				// it.remove();
 				o.setStatus(OrderStatus.CANCELLED);
-				logger.info("[" + Util.format(now) + "] Cancelling order placed on [" + Util.format(order.getOrderTime()) + "]");
+				logger.info("[" + Util.format(now) + "] Cancelling order " + o);
 			}
 		}
 		orders.add(order);
+		logger.debug("\tPlacing order " + order);
 	}
 
 	public Long getAcctNbr() {

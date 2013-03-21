@@ -70,6 +70,7 @@ public class Constants {
 	public final static double LOCKWIN_PRE_CLOSE_FACTOR = 1.05;
 	public final static double LOCKWIN_CUR_OPEN_FACTOR = 1.02;
 	public final static double STOPLOSS_CUR_OPEN_FACTOR = 0.98;
+  public static final boolean OVERNIGHT_ONLY = false;
 
 	public final static String STOCK_PRICE_TIMESTAMP_PATTERN = "M/d/yyyy H:mm";
 	public final static DateFormat STOCK_PRICE_TIMESTAMP_FORMATTER = new SimpleDateFormat(
@@ -104,7 +105,7 @@ public class Constants {
 	public final static String HISTORY_DATA_FILE_PATH = "D:/projects/DayTrader/resources/data/";
 	// sample link -
 	// http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct&i=60&q=UVXY
-	public final static String HISTORY_DATA_GOOGLE_SITE = "http://www.google.com/finance/getprices?p=2d&f=d,o,h,l,c,v&df=cpct";
+	public final static String HISTORY_DATA_GOOGLE_SITE = "http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct";
 
 	public static final double[] PREDICT_OPEN_FACTORS = {0.10, 0.05, 0.02, 0, -0.02, -0.05, -0.10};
 

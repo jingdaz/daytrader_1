@@ -84,16 +84,20 @@ public class Util {
 		return lastLine;
 	}
 
-	public static String getDataPath(String symbol, Period period, DataFileType type) {
-		switch(type) {
+	public static String getDataPath(String symbol, Period period,
+			DataFileType type) {
+		switch (type) {
 		case GF:
-			return getStockDataPath(Constants.STOCK_DATA_FILE_GF_PREFIX, symbol, period);
+			return getStockDataPath(Constants.STOCK_DATA_FILE_GF_PREFIX,
+					symbol, period);
 		default:
-			return getStockDataPath(Constants.STOCK_DATA_FILE_BVS_PREFIX, symbol, period);			
+			return getStockDataPath(Constants.STOCK_DATA_FILE_BVS_PREFIX,
+					symbol, period);
 		}
 	}
 
-	public static String getStockDataPath(String prefix, String symbol, Period period) {
+	public static String getStockDataPath(String prefix, String symbol,
+			Period period) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(Constants.HISTORY_DATA_FILE_PATH);
 		sb.append(prefix);
@@ -101,13 +105,14 @@ public class Util {
 		sb.append(Constants.FILENAME_CONNECTOR);
 		sb.append(period.name());
 		sb.append(Constants.STOCK_DATA_FILE_EXTENSION);
-		
-		logger.info("Generated file name: " + sb);
+
+		logger.debug("Generated file name: " + sb);
 		return sb.toString();
 	}
+
 	public static void main(String[] args) {
 		String filename = "D:/projects/DayTrader/resources/UVXY_MIN.csv";
 		String line = getLastLine(filename);
-		System.out.println("last line="+line);
+		System.out.println("last line=" + line);
 	}
 }
