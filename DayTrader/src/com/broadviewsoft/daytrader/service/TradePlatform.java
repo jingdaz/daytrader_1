@@ -43,6 +43,7 @@ public class TradePlatform {
 		Period period = strategy.getPeriod();
 
 		strategy.resetDailyStatus();
+		// FIXME Monday's preClose?
 		Date yesterday = new Date(tradeDate.getTime() - Constants.DAY_IN_MILLI_SECONDS);
     double preClose = broker.getDataFeeder().getPrice(symbol, yesterday, PriceType.Close);
     double curOpen = broker.getDataFeeder().getPrice(symbol, tradeDate, PriceType.Open);
@@ -60,7 +61,7 @@ public class TradePlatform {
 		while (today.before(end)) {
 			for (int i = 0; i < period.minutes(); i++) {
 			  broker.checkOrder(today);
-				if (i == 0) {
+				if (i == 0 && !Constants.OVERNIGHT_ONLY) {
 					StockStatus status = strategy.analyze(broker, symbol, period, today);
 		       // check order execution after 1 minute - simulate slow order
 	        // entry on mobile phone
@@ -101,7 +102,8 @@ public class TradePlatform {
       else {
         tradeDaily(strategy, symbol, today);
       }
-      today = Util.convertDST(new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS));
+      // today = Util.convertDST(new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS));
+      today = new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS);
     }
    
   }
