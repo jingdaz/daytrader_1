@@ -36,7 +36,8 @@ public class BrokerService {
 
 	// TODO Real-time data feed
 	/**
-	 * Retrieve cuurent stock price Use data feed for real-time price in future
+	 * Retrieve current stock price; Use data feed for now.
+	 * To obtain real-time price, data feed should be used
 	 * 
 	 * @param timestamp
 	 * @return
@@ -62,7 +63,9 @@ public class BrokerService {
 	}
 
 	public void registerAccount(Account account) {
-		accounts.add(account);
+		if (!accounts.contains(account)) {
+			accounts.add(account);
+		}
 	}
 
 	public DataFeeder getDataFeeder() {

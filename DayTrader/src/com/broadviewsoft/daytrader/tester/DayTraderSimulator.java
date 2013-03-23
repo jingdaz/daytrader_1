@@ -29,10 +29,12 @@ import com.broadviewsoft.daytrader.service.impl.RsiStrategy;
 public class DayTraderSimulator {
 	private static Log logger = LogFactory.getLog(DayTraderSimulator.class);
 
-	private TradePlatform tradePlatform = new TradePlatform();
-	private List<ITradeStrategy> strategies = new ArrayList<ITradeStrategy>();
+	private TradePlatform tradePlatform = null;
+	private List<ITradeStrategy> strategies = null;
 	
 	public DayTraderSimulator() {
+		tradePlatform = new TradePlatform();
+		strategies = new ArrayList<ITradeStrategy>();
 	}
 	
 	public List<ITradeStrategy> getStrategies() {
@@ -60,7 +62,7 @@ public class DayTraderSimulator {
 //		simulator.addStrategies(new RsiStrategy());
 		String[] symbols = Constants.INIT_STOCK_SYMBOLS;
 		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("03/05/2013");
-		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("03/15/2013");
+		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("03/06/2013");
 		for (String symbol : symbols) {
 		  simulator.simulate(symbol, startDate, endDate);
 		}

@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.broadviewsoft.daytrader.util.Util;
 
-public class StockItem implements Comparable {
+public class StockItem implements Comparable<Object> {
 	private Stock stock;
 	private Date timestamp;
 	private Period period;
