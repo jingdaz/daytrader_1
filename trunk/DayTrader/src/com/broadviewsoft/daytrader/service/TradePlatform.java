@@ -44,9 +44,17 @@ public class TradePlatform {
 
 		strategy.resetDailyStatus();
 		// FIXME Monday's preClose?
-		Date yesterday = new Date(tradeDate.getTime() - Constants.DAY_IN_MILLI_SECONDS);
-    double preClose = broker.getDataFeeder().getPrice(symbol, yesterday, PriceType.Close);
-    double curOpen = broker.getDataFeeder().getPrice(symbol, tradeDate, PriceType.Open);
+    
+    int todayItemIndex = broker.getDataFeeder().getCurItemIndex(symbol, tradeDate, Period.DAY);
+    int yesterdayItemIndex = todayItemIndex - 1;
+    
+    if (todayItemIndex < 0 || yesterdayItemIndex < 0) {
+    	logger.error("No open/close price found on " + tradeDate);
+    	return;
+    }
+    
+    double curOpen = broker.getDataFeeder().getPriceByIndex(symbol, Period.DAY, todayItemIndex, PriceType.Open);
+    double preClose = broker.getDataFeeder().getPriceByIndex(symbol, Period.DAY, yesterdayItemIndex, PriceType.Close);
     
 		account.init(preClose, tradeDate);
 		broker.registerAccount(account);

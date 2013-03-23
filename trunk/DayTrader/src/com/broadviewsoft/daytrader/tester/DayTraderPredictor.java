@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.domain.Account;
 import com.broadviewsoft.daytrader.domain.Constants;
+import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.PriceType;
 import com.broadviewsoft.daytrader.service.BrokerService;
 import com.broadviewsoft.daytrader.service.TradePlatform;
@@ -72,8 +73,18 @@ public class DayTraderPredictor {
 		Calendar cal = Calendar.getInstance();
 		Calendar calToday = new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
 		Date today = calToday.getTime();
-		Date yesterday = new Date(calToday.getTimeInMillis() - Constants.DAY_IN_MILLI_SECONDS);
-		double preClose = broker.getDataFeeder().getPrice(symbol, yesterday, PriceType.Close);
+		
+	    int todayItemIndex = broker.getDataFeeder().getCurItemIndex(symbol, today, Period.DAY);
+	    int yesterdayItemIndex = todayItemIndex - 1;
+	    
+	    if (todayItemIndex < 0 || yesterdayItemIndex < 0) {
+	    	logger.error("No open/close price found on " + today);
+	    	return;
+	    }
+	    
+	    double curOpen = broker.getDataFeeder().getPriceByIndex(symbol, Period.DAY, todayItemIndex, PriceType.Open);
+	    double preClose = broker.getDataFeeder().getPriceByIndex(symbol, Period.DAY, yesterdayItemIndex, PriceType.Close);
+		
 		account.init(preClose, today);
 
 		double[] curOpens = new double[8];
