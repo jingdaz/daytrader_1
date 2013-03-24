@@ -233,7 +233,7 @@ public class DataFeeder {
 			return -1;
 		}
 
-		for (int i = 0; i < targetItems.size() - 1; i++) {
+		for (int i = 0; i < targetItems.size(); i++) {
 			if (curTime.equals(targetItems.get(i).getTimestamp())) {
 				return i;
 			}
