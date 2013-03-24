@@ -77,7 +77,7 @@ public class CciStrategy extends TradeStrategy {
 							Constants.LOCKWIN_CUR_OPEN_FACTOR * curOpen);
 					Order newOrder = Order.createOrder(timestamp,
 							TransactionType.SELL, OrderType.LIMIT,
-							sh.getQuantity(), lockWinLimit);
+							sh.getQuantity(), lockWinLimit, 0);
 					account.placeOrder(timestamp, newOrder);
 				}
 				// Open low, set stop order
@@ -86,7 +86,7 @@ public class CciStrategy extends TradeStrategy {
 							* curOpen;
 					Order newOrder = Order.createOrder(timestamp,
 							TransactionType.SELL, OrderType.STOP,
-							sh.getQuantity(), stopLoss);
+							sh.getQuantity(), 0, stopLoss);
 					account.placeOrder(timestamp, newOrder);
 				}
 				// Open flat, wait for chances

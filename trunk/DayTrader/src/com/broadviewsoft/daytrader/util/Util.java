@@ -43,11 +43,13 @@ public class Util {
 		return 0;
 	}
 
-	public static Date convertDST(Date date) {
-		// rollback one hour in case of Day-Saving Time
-		if (TimeZone.getDefault().inDaylightTime(date)) {
-			date = new Date(date.getTime() - Constants.HOUR_IN_MILLI_SECONDS);
-		}
+	public static Date forwardOneHour(Date date) {
+		date = new Date(date.getTime() - Constants.HOUR_IN_MILLI_SECONDS);
+		return date;
+	}
+
+	public static Date backwardOneHour(Date date) {
+		date = new Date(date.getTime() + Constants.HOUR_IN_MILLI_SECONDS);
 		return date;
 	}
 

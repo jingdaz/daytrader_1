@@ -2,6 +2,7 @@ package com.broadviewsoft.daytrader.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -36,8 +37,8 @@ public class BrokerService {
 
 	// TODO Real-time data feed
 	/**
-	 * Retrieve current stock price; Use data feed for now.
-	 * To obtain real-time price, data feed should be used
+	 * Retrieve current stock price; Use data feed for now. To obtain real-time
+	 * price, data feed should be used
 	 * 
 	 * @param timestamp
 	 * @return
@@ -81,24 +82,34 @@ public class BrokerService {
 		return dataFeeder.getHistoryData(symbol, period, cutTime);
 	}
 
+	// FIXME java.util.ConcurrentModificationException
 	public void checkOrder(Date clock) {
+		Order protectionOrder = null;
 		for (Account acct : accounts) {
 			List<Order> orders = acct.getOrders();
-			for (Order order : orders) {
+			List<Order> clonedOrders = new ArrayList<Order>();
+			clonedOrders.addAll(orders);
+			for (Order order : clonedOrders) {
 				if (order.getStatus() == OrderStatus.OPEN) {
-					fulfillOrder(acct, order, clock);
+					protectionOrder = fulfillOrder(acct, order, clock);
+					if (protectionOrder != null) {
+						acct.placeOrder(clock, protectionOrder);
+						logger.info("\tPlacing Stop Sell order at " + clock
+								+ " to protect new purchase.");
+					}
 				}
 			}
 		}
 	}
 
-	private void fulfillOrder(Account account, Order order, Date clock) {
+	private Order fulfillOrder(Account account, Order order, Date clock) {
+		Order result = null;
 		StockPrice sp = getCurrentPrice(order.getStock(), clock);
 		if (sp == null) {
 			logger.info("No historitcal price data found for "
 					+ order.getStock().getSymbol() + " on ["
 					+ Util.format(clock) + "]");
-			return;
+			return result;
 		}
 		double curPrice = sp.getPrice();
 		boolean buyFulfilled = false;
@@ -155,11 +166,10 @@ public class BrokerService {
 			}
 			// always set stop order for protection
 			if (buyFulfilled == true) {
-				Order sell = Order.createOrder(clock, TransactionType.SELL,
-						OrderType.STOP, order.getQuantity());
-				account.placeOrder(clock, sell);
-				logger.debug("\tPlacing Stop Sell order at " + clock
-						+ " to protect new purchase.");
+				double stopPrice = Constants.PROTECTION_STOP_PRICE * curPrice;
+//				double limitPrice = Constants.PROTECTION_LIMIT_PRICE * curPrice;
+				result = Order.createOrder(clock, TransactionType.SELL,
+						OrderType.STOP, order.getQuantity(), 0, stopPrice);
 			}
 			break;
 
@@ -218,7 +228,7 @@ public class BrokerService {
 
 			break;
 		}
-
+		return result;
 	}
 
 	private void alertPriceChange(StockHolding sh, double diff,
@@ -237,7 +247,8 @@ public class BrokerService {
 		sb.append(clock);
 		sb.append("]");
 
-		logger.info(sb.toString());
+//		logger.info(sb.toString());
+		logger.debug(sb.toString());
 
 	}
 

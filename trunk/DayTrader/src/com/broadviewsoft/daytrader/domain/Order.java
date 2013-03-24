@@ -91,12 +91,12 @@ public class Order {
 		return createOrder(orderTime, txType, orderType, qty, 0, 0);
 	}
 
-	public static Order createOrder(Date orderTime, TransactionType txType,
-			OrderType orderType, int qty, double limitPrice) {
-		return createOrder(orderTime, txType, orderType, qty, limitPrice, 0);
-	}
+	// public static Order createOrder(Date orderTime, TransactionType txType,
+	// OrderType orderType, int qty, double limitPrice) {
+	// return createOrder(orderTime, txType, orderType, qty, limitPrice, 0);
+	// }
 
-	private static Order createOrder(Date orderTime, TransactionType txType,
+	public static Order createOrder(Date orderTime, TransactionType txType,
 			OrderType orderType, int qty, double limitPrice, double stopPrice) {
 		Order order = new Order();
 		order.setOrderTime(orderTime);
@@ -105,8 +105,12 @@ public class Order {
 		order.setStatus(OrderStatus.OPEN);
 		order.setOrderType(orderType);
 		order.setQuantity(qty);
-		order.setLimitPrice(limitPrice);
-		order.setStopPrice(stopPrice);
+		if (limitPrice > 0) {
+			order.setLimitPrice(limitPrice);
+		}
+		if (stopPrice > 0) {
+			order.setStopPrice(stopPrice);
+		}
 		return order;
 	}
 
