@@ -59,7 +59,7 @@ public class Account {
 			}
 		}
 		orders.add(order);
-		logger.debug("\tPlacing order " + order);
+		logger.info("\tPlacing order " + order);
 	}
 
 	public Long getAcctNbr() {

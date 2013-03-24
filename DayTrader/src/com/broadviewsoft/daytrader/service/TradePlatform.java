@@ -3,6 +3,7 @@ package com.broadviewsoft.daytrader.service;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,6 +48,7 @@ public class TradePlatform {
     
     int todayItemIndex = broker.getDataFeeder().getCurItemIndex(symbol, tradeDate, Period.DAY);
     int yesterdayItemIndex = todayItemIndex - 1;
+    logger.info("Index for today and yesterday " + todayItemIndex + "/" + yesterdayItemIndex);
     
     if (todayItemIndex < 0 || yesterdayItemIndex < 0) {
     	logger.error("No open/close price found on " + tradeDate);
@@ -98,6 +100,7 @@ public class TradePlatform {
   public void trade(ITradeStrategy strategy, String symbol, Date startDate, Date endDate)
   {
     Date today = startDate;
+    Date nextDay = null;
     while (!today.after(endDate)) {
       logger.info("Simulating " + Constants.TRADE_DATE_FORMATTER.format(today));
       Calendar cal = new GregorianCalendar();
@@ -110,8 +113,14 @@ public class TradePlatform {
       else {
         tradeDaily(strategy, symbol, today);
       }
-      // today = Util.convertDST(new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS));
-      today = new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS);
+      nextDay = new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS);
+		if (TimeZone.getDefault().inDaylightTime(today) && !TimeZone.getDefault().inDaylightTime(nextDay)) {
+			nextDay = Util.backwardOneHour(nextDay);
+		}
+		else if (!TimeZone.getDefault().inDaylightTime(today) && TimeZone.getDefault().inDaylightTime(nextDay)) {
+			nextDay = Util.forwardOneHour(nextDay);
+		}
+      today = nextDay;
     }
    
   }

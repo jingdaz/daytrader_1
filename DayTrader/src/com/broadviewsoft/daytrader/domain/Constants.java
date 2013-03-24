@@ -109,6 +109,10 @@ public class Constants {
 
 	public static final double[] PREDICT_OPEN_FACTORS = {0.10, 0.05, 0.02, 0, -0.02, -0.05, -0.10};
 
+	public static final double PROTECTION_STOP_PRICE = 0.98;
+
+	public static final double PROTECTION_LIMIT_PRICE = 0.98;
+
 	public static List<Date> MARKET_CLOSE_DAYS = new ArrayList<Date>();
 
 	static {
