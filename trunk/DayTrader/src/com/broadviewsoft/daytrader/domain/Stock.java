@@ -1,6 +1,6 @@
 package com.broadviewsoft.daytrader.domain;
 
-public class Stock {
+public class Stock implements Cloneable {
 	private CurrencyType currencyType;
 	private String symbol;
 	private String companyName;
@@ -38,4 +38,20 @@ public class Stock {
 		this.companyName = companyName;
 	}
 
+	public boolean eqauls(Object obj) {
+		if (!(obj instanceof Stock)) {
+			return false;
+		}
+		
+		Stock s = (Stock) obj;
+		return symbol.equalsIgnoreCase(s.getSymbol());
+	}
+	
+	public static void main(String[] args) throws CloneNotSupportedException {
+		Stock a = new Stock("IBM");
+		Stock b = new Stock("IBM");
+		Object c = a.clone();
+		System.out.println("a==b? " + (a.eqauls(b)));
+		System.out.println("a==c? " + (a.eqauls(c)));
+	}
 }

@@ -46,6 +46,19 @@ public class Constants {
 	public final static double CCI_WEAKEST_LIMIT = 25;
 	public final static double CCI_STRONGEST_LIMIT = -25;
 
+	 /* CCI should be < 200 when considering a sell from over-bought */
+  public static final double CCI_TOP_SELL_LIMIT = 200;
+  
+	/* CCI should be > -120 when considering a buy from over-sold */
+	public static final double CCI_BOTTOM_BUY_LIMIT = -120;
+
+	/* Super low open */
+	 public static final int CCI_SUPER_OPEN_START_TIME = 390;
+	 public static final int CCI_SUPER_OPEN_END_TIME = 395;
+	 public static final double CCI_SUPER_LOW_LIMIT = -300;
+	 /* Super high open */
+	 public static final double CCI_SUPER_HIGH_LIMIT = 300;
+   
 	/* Alert */
 	public static final double STOCK_PRICE_UP_ALERT = 0.02;
 	public static final double STOCK_PRICE_DOWN_ALERT = -0.02;
@@ -56,17 +69,27 @@ public class Constants {
   public static final int RSI_INTERVAL = 14;
 	public static final int CCI_INTERVAL = 20;
 
-
-	public final static String[] MARKET_HOLIDAYS = { "01/01/2013", "02/18/2013" };
-
+	/* Price cross up or down */
+	public static final double PRICE_CROSS_UP_PRELOW_FACTOR = -0.06;
+	public static final double PRICE_CROSS_UP_CURITEM_FACTOR = 0.05;
+	public static final long PRICE_CROSS_UP_TIME_INTERVAL = 60 * 60 * 1000;
+	
+  public static final double PRICE_CROSS_DOWN_PREHIGH_FACTOR = 0.05;
+  public static final double PRICE_CROSS_DOWN_CURITEM_FACTOR = -0.04;
+  public static final long PRICE_CROSS_DOWN_TIME_INTERVAL = 60 * 60 * 1000;
+  
+	public final static String[] MARKET_HOLIDAYS = { "01/01/2013", "02/18/2013", "03/29/2013" };
+	public final static String[] MARKET_HALF_DAYS = { "12/24/2013" };
+	
 	public final static String[] STOCKS_WITH_DATA = {"UVXY"};
-	public final static int INIT_CASH_AMOUNT = 10000;
+	public final static int INIT_CASH_AMOUNT = 20000;
 	public final static String[] INIT_STOCK_SYMBOLS = {"UVXY"};
-	public final static int[] INIT_STOCK_VOLUMES = { 1000 };
+	public final static int[] INIT_STOCK_VOLUMES = { 0 };
 
 	public final static double PRICE_HIGHER_FACTOR = 1.01;
 	public final static double PRICE_LOWER_FACTOR = 0.99;
 
+	 public final static double LOCKWIN_PRE_HIGH_FACTOR = 0.98;
 	public final static double LOCKWIN_PRE_CLOSE_FACTOR = 1.05;
 	public final static double LOCKWIN_CUR_OPEN_FACTOR = 1.02;
 	public final static double STOPLOSS_CUR_OPEN_FACTOR = 0.98;
@@ -114,6 +137,7 @@ public class Constants {
 	public static final double PROTECTION_LIMIT_PRICE = 0.98;
 
 	public static List<Date> MARKET_CLOSE_DAYS = new ArrayList<Date>();
+	public static List<Date> MARKET_CLOSE_EARLY_DAYS = new ArrayList<Date>();
 
 	static {
 		for (int i = 0; i < MARKET_HOLIDAYS.length; i++) {
@@ -124,5 +148,13 @@ public class Constants {
 				logger.error("Error when parsing market holidays.");
 			}
 		}
+		for (int i = 0; i < MARKET_HALF_DAYS.length; i++) {
+      try {
+        MARKET_CLOSE_EARLY_DAYS.add(Constants.TRADE_DATE_FORMATTER
+            .parse(MARKET_HALF_DAYS[i]));
+      } catch (ParseException e) {
+        logger.error("Error when parsing market half-days.");
+      }
+    }
 	}
 }

@@ -43,16 +43,8 @@ public class BrokerService {
 	 * @param timestamp
 	 * @return
 	 */
-	public StockPrice getCurrentPrice(Stock stock, Date timestamp) {
-		double curPrice = dataFeeder.getPrice(stock.getSymbol(), timestamp,
-				PriceType.Typical);
-		if (curPrice <= 0) {
-			return null;
-		}
-		StockPrice sp = new StockPrice();
-		sp.setDealTime(timestamp);
-		sp.setPrice(curPrice);
-		return sp;
+	private double getCurPrice(Stock stock, Date timestamp, Period period, PriceType type) {
+		return dataFeeder.getPrice(stock.getSymbol(), timestamp,	period, type);
 	}
 
 	public List<Account> getAccounts() {
@@ -82,13 +74,20 @@ public class BrokerService {
 		return dataFeeder.getHistoryData(symbol, period, cutTime);
 	}
 
+	public StockItem getYesdayItem(String symbol, int index) {
+	  return dataFeeder.getItemByIndex(symbol, Period.DAY, index);
+	}
+	
 	// FIXME java.util.ConcurrentModificationException
 	public void checkOrder(Date clock) {
 		Order protectionOrder = null;
 		for (Account acct : accounts) {
 			List<Order> orders = acct.getOrders();
+			
+			// Clone all orders for check
 			List<Order> clonedOrders = new ArrayList<Order>();
 			clonedOrders.addAll(orders);
+			
 			for (Order order : clonedOrders) {
 				if (order.getStatus() == OrderStatus.OPEN) {
 					protectionOrder = fulfillOrder(acct, order, clock);
@@ -104,26 +103,32 @@ public class BrokerService {
 
 	private Order fulfillOrder(Account account, Order order, Date clock) {
 		Order result = null;
-		StockPrice sp = getCurrentPrice(order.getStock(), clock);
-		if (sp == null) {
+		double typ = getCurPrice(order.getStock(), clock, Period.MIN, PriceType.Typical);
+		double low = getCurPrice(order.getStock(), clock, Period.MIN, PriceType.Low);
+		double high = getCurPrice(order.getStock(), clock, Period.MIN, PriceType.High);
+		
+		if (typ <= 0) {
 			logger.info("No historitcal price data found for "
 					+ order.getStock().getSymbol() + " on ["
 					+ Util.format(clock) + "]");
 			return result;
 		}
-		double curPrice = sp.getPrice();
+
+		double deal = 0;
 		boolean buyFulfilled = false;
+
 		switch (order.getTxType()) {
 		case BUY:
 			switch (order.getOrderType()) {
 			case LIMIT:
-				if (curPrice <= order.getLimitPrice()) {
-					logger.debug("\tExecuted Limit Buy order on [" + clock
+				if (low <= order.getLimitPrice()) {
+	        deal = (order.getLimitPrice() >= high ? typ : order.getLimitPrice());
+					logger.info("\tExecuted Limit Buy order on [" + Util.format(clock)
 							+ "]");
 					order.setStatus(OrderStatus.EXECUTED);
 					Transaction tx = new Transaction(order);
 					tx.setDealTime(clock);
-					tx.setDealPrice(curPrice);
+					tx.setDealPrice(deal);
 					tx.setCommission(Constants.COMMISSION_FEE);
 					account.getTransactions().add(tx);
 					buyFulfilled = true;
@@ -133,11 +138,12 @@ public class BrokerService {
 				break;
 
 			case MARKET:
-				logger.debug("\tExecuted Market Buy order on [" + clock + "]");
+			  deal = typ;
+				logger.info("\tExecuted Market Buy order on [" + Util.format(clock) + "]");
 				order.setStatus(OrderStatus.EXECUTED);
 				Transaction tx = new Transaction(order);
 				tx.setDealTime(clock);
-				tx.setDealPrice(curPrice);
+				tx.setDealPrice(typ);
 				tx.setCommission(Constants.COMMISSION_FEE);
 				account.getTransactions().add(tx);
 				buyFulfilled = true;
@@ -146,12 +152,13 @@ public class BrokerService {
 				break;
 
 			case STOP:
-				if (sp.getPrice() <= order.getLimitPrice()) {
-					logger.debug("\tExecuted Stop Buy order on " + clock);
+        if (high >= order.getStopPrice()) {
+          deal = (order.getStopPrice() <= low ? typ : order.getStopPrice());
+					logger.info("\tExecuted Stop Buy order on " + Util.format(clock));
 					order.setStatus(OrderStatus.EXECUTED);
 					Transaction tx2 = new Transaction(order);
 					tx2.setDealTime(clock);
-					tx2.setDealPrice(curPrice);
+					tx2.setDealPrice(deal);
 					tx2.setCommission(Constants.COMMISSION_FEE);
 					account.getTransactions().add(tx2);
 					buyFulfilled = true;
@@ -161,12 +168,12 @@ public class BrokerService {
 				break;
 
 			case STOPLIMIT:
-				logger.debug("\tExecuted Stop-Limit Buy order on " + clock);
+				logger.info("\tExecuted Stop-Limit Buy order on " + Util.format(clock));
 				break;
 			}
 			// always set stop order for protection
 			if (buyFulfilled == true) {
-				double stopPrice = Constants.PROTECTION_STOP_PRICE * curPrice;
+				double stopPrice = Constants.PROTECTION_STOP_PRICE * deal;
 //				double limitPrice = Constants.PROTECTION_LIMIT_PRICE * curPrice;
 				result = Order.createOrder(clock, TransactionType.SELL,
 						OrderType.STOP, order.getQuantity(), 0, stopPrice);
@@ -175,19 +182,20 @@ public class BrokerService {
 
 		case SELL:
 			StockHolding sh = account.getHolding(order.getStock());
-			double diff = (curPrice - sh.getAvgPrice()) / sh.getAvgPrice();
+			double diff = (typ - sh.getAvgPrice()) / sh.getAvgPrice();
 			if (diff > Constants.STOCK_PRICE_UP_ALERT
 					|| diff < Constants.STOCK_PRICE_DOWN_ALERT) {
-				alertPriceChange(sh, diff, curPrice, clock);
+				alertPriceChange(sh, diff, typ, clock);
 			}
 			switch (order.getOrderType()) {
 			case LIMIT:
-				if (sp.getPrice() >= order.getLimitPrice()) {
-					logger.debug("\tExecuted Limit Sell order on " + clock);
+				if (high >= order.getLimitPrice()) {
+				  deal = (order.getLimitPrice() <= low ? typ : order.getLimitPrice());
+					logger.info("\tExecuted Limit Sell order on " + Util.format(clock));
 					order.setStatus(OrderStatus.EXECUTED);
 					Transaction tx2 = new Transaction(order);
 					tx2.setDealTime(clock);
-					tx2.setDealPrice(curPrice);
+					tx2.setDealPrice(deal);
 					tx2.setCommission(Constants.COMMISSION_FEE);
 					account.getTransactions().add(tx2);
 					// update holdings
@@ -196,11 +204,12 @@ public class BrokerService {
 				break;
 
 			case MARKET:
-				logger.debug("\tExecuted Market Sell order on " + clock);
+			  deal = typ;
+				logger.info("\tExecuted Market Sell order on " + Util.format(clock));
 				order.setStatus(OrderStatus.EXECUTED);
 				Transaction tx = new Transaction(order);
 				tx.setDealTime(clock);
-				tx.setDealPrice(sp.getPrice());
+				tx.setDealPrice(typ);
 				tx.setCommission(Constants.COMMISSION_FEE);
 				account.getTransactions().add(tx);
 				// update holdings
@@ -208,12 +217,13 @@ public class BrokerService {
 				break;
 
 			case STOP:
-				if (sp.getPrice() <= order.getLimitPrice()) {
-					logger.debug("\tExecuted Stop Sell order on " + clock);
+				if (low <= order.getStopPrice()) {
+				  deal = (order.getStopPrice() >= high ? typ : order.getStopPrice());
+					logger.info("\tExecuted Stop Sell order on " + Util.format(clock));
 					order.setStatus(OrderStatus.EXECUTED);
 					Transaction tx2 = new Transaction(order);
 					tx2.setDealTime(clock);
-					tx2.setDealPrice(curPrice);
+					tx2.setDealPrice(deal);
 					tx2.setCommission(Constants.COMMISSION_FEE);
 					account.getTransactions().add(tx2);
 					// update holdings
@@ -222,7 +232,7 @@ public class BrokerService {
 				break;
 
 			case STOPLIMIT:
-				logger.debug("\tExecuted Stop-Limit Sell order on " + clock);
+				logger.info("\tExecuted Stop-Limit Sell order on " + Util.format(clock));
 				break;
 			}
 
@@ -244,7 +254,7 @@ public class BrokerService {
 		sb.append(Util.format(curPrice));
 		sb.append(" on [");
 		// sb.append(Util.format(clock));
-		sb.append(clock);
+		sb.append(Util.format(clock));
 		sb.append("]");
 
 //		logger.info(sb.toString());

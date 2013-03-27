@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.broadviewsoft.daytrader.domain.Constants;
-import com.broadviewsoft.daytrader.domain.DailyStatus;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.StockItem;
 import com.broadviewsoft.daytrader.domain.StockStatus;
@@ -18,7 +17,6 @@ import com.broadviewsoft.daytrader.domain.StockStatus;
  */
 public abstract class TradeStrategy implements ITradeStrategy {
 	protected Period period = null;
-	protected DailyStatus dailyStatus = null;
 
 	public Period getPeriod() {
 		return period;
@@ -26,14 +24,6 @@ public abstract class TradeStrategy implements ITradeStrategy {
 
 	public void setPeriod(Period period) {
 		this.period = period;
-	}
-
-	public DailyStatus getDailyStatus() {
-		return dailyStatus;
-	}
-
-	public void setDailyStatus(DailyStatus dailyStatus) {
-		this.dailyStatus = dailyStatus;
 	}
 
 	public String getDescription() {
@@ -45,27 +35,19 @@ public abstract class TradeStrategy implements ITradeStrategy {
 	}
 
 	public StockStatus analyze(BrokerService broker, String symbol,
-			Period period, Date date) {
-		StockStatus curStatus = new StockStatus(date);
+			Period period, Date date, int ytaItemIndex) {
+		StockStatus curStatus = new StockStatus(symbol, date);
 		List<StockItem> data = broker.collectData(symbol, period, date);
+		StockItem ytaItem = broker.getYesdayItem(symbol, ytaItemIndex);
 		StockItem preHigh = findPreHigh(data);
 		StockItem preLow = findPreLow(data);
 		StockItem curItem = data.get(data.size() - 1);
 
-		if (dailyStatus.isWeakest()
-				&& curItem.getCci() > Constants.CCI_WEAKEST_LIMIT) {
-			dailyStatus.setWeakest(false);
-		}
-		if (dailyStatus.isStrongest()
-				&& curItem.getCci() < Constants.CCI_STRONGEST_LIMIT) {
-			dailyStatus.setStrongest(false);
-		}
-
+		curStatus.setYtaItem(ytaItem);
 		curStatus.setPreHigh(preHigh);
 		curStatus.setPreLow(preLow);
 		curStatus.setCurItem(curItem);
 		curStatus.setChartItems(new LinkedList<StockItem>(data));
-		dailyStatus.getStatuses().add(curStatus);
 
 		return curStatus;
 	}
@@ -100,7 +82,4 @@ public abstract class TradeStrategy implements ITradeStrategy {
 		return preHigh;
 	}
 
-	public void resetDailyStatus() {
-		dailyStatus.reset();
-	}
 }
