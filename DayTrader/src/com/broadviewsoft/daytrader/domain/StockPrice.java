@@ -2,6 +2,7 @@ package com.broadviewsoft.daytrader.domain;
 
 import java.util.Date;
 
+@Deprecated
 public class StockPrice {
 	private Stock stock;
 	private Date dealTime;

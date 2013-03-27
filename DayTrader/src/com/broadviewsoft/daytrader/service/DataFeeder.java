@@ -24,7 +24,7 @@ public class DataFeeder {
 
 	private IHistoryDataService service = new HistoryDataFileService();
 
-	List<StockData> allData = new ArrayList<StockData>();
+	private List<StockData> allData = new ArrayList<StockData>();
 
 	public DataFeeder() {
 		this(false);
@@ -83,6 +83,29 @@ public class DataFeeder {
 		return result;
 	}
 
+	public StockItem getItemByIndex(String symbol, Period period, int index) {
+    List<StockItem> targetItems = null;
+    StockItem targetItem = null;
+    
+    for (StockData sd : allData) {
+      if (sd.getStock().getSymbol().equalsIgnoreCase(symbol)) {
+        switch (period) {
+        case MIN:
+          targetItems = sd.getMins();
+          break;
+
+        default:
+          targetItems = sd.getDays();
+        }
+      }
+    }
+    if (targetItems != null) {
+       targetItem = targetItems.get(index);
+    }
+    
+    return targetItem;
+  }
+
 	public double getPriceByIndex(String symbol, Period period, int index,
 			PriceType type) {
 		List<StockItem> targetItems = null;
@@ -109,18 +132,22 @@ public class DataFeeder {
 	}
 
 	// FIXME StockItem timestamp cannot be null and mins with size > 1
-		public double getPrice(String symbol, Date timestamp, PriceType type) {
+		public double getPrice(String symbol, Date timestamp, Period period, PriceType type) {
 			List<StockItem> targetItems = null;
 
 			for (StockData sd : allData) {
 				if (sd.getStock().getSymbol().equalsIgnoreCase(symbol)) {
-					switch (type) {
-					case Typical:
-						targetItems = sd.getMins();
+					switch (period) {
+					case DAY:
+            targetItems = sd.getDays();
 						break;
 
-					default:
-						targetItems = sd.getDays();
+          case MIN5:
+            targetItems = sd.getMin5s();
+            break;
+
+          default:
+	           targetItems = sd.getMins();
 					}
 
 				}

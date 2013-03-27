@@ -6,7 +6,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.domain.Account;
-import com.broadviewsoft.daytrader.domain.DailyStatus;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.StockStatus;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
@@ -18,18 +17,17 @@ public class RsiStrategy extends TradeStrategy implements ITradeStrategy
   
   public RsiStrategy() {
 		period = Period.MIN5;
-		dailyStatus = new DailyStatus();
 	}
 
   public void execute(StockStatus status, Account account)
   {
-    logger.debug("Executing RSI strategy.");
+    logger.info("Executing RSI strategy.");
 
   }
 
   public void handleOverNight(Account account, String symbol, Date timestamp, double preClose, double curOpen)
   {
-    logger.debug("Handling over-night holding using RSI strategy.");
+    logger.info("Handling over-night holding using RSI strategy.");
 
   }
 

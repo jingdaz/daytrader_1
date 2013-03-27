@@ -10,253 +10,332 @@ import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.util.Util;
 
-public class Account {
-	private static Log logger = LogFactory.getLog(Account.class);
+public class Account
+{
+  private static Log logger = LogFactory.getLog(Account.class);
 
-	private Long acctNbr = Constants.DEFAULT_ACCOUNT_NUMBER;
-	private CurrencyType currencyType = CurrencyType.USD;
-	private double cashAmount = 0;
-	private double initialAmount = 0;
+  private Long acctNbr = Constants.DEFAULT_ACCOUNT_NUMBER;
 
-	private List<StockHolding> holdings = new ArrayList<StockHolding>();
-	private List<Order> orders = new ArrayList<Order>();
-	private List<Transaction> transactions = new ArrayList<Transaction>();
+  private CurrencyType currencyType = CurrencyType.USD;
 
-	public Account() {
+  private double cashAmount = 0;
 
-	}
+  private double initialAmount = 0;
 
-	public void init(double preClose, Date today) {
-		cashAmount = Constants.INIT_CASH_AMOUNT;
-		for (int i = 0; i < Constants.INIT_STOCK_SYMBOLS.length; i++) {
-			Stock stock = new Stock(Constants.INIT_STOCK_SYMBOLS[i]);
-			StockHolding sh = new StockHolding();
-			sh.setStock(stock);
-			sh.setQuantity(Constants.INIT_STOCK_VOLUMES[i]);
-			sh.setAvgPrice(preClose);
-			holdings.add(sh);
-		}
-		// record initial amount in total
-		initialAmount = getTotal();
-	}
+  private List<StockHolding> holdings = new ArrayList<StockHolding>();
 
-	 public void reset() {
-	    this.cashAmount = Constants.INIT_CASH_AMOUNT;
-	    this.orders.clear();
-	    this.transactions.clear();
-	    this.holdings.clear();
-	 }
-	 
-	public void placeOrder(Date now, Order order) {
-		Iterator<Order> it = orders.listIterator();
-		while (it.hasNext()) {
-			Order o = it.next();
-			if (o.getTxType() == order.getTxType()
-					&& o.getStatus() == OrderStatus.OPEN) {
-				// it.remove();
-				o.setStatus(OrderStatus.CANCELLED);
-				logger.info("[" + Util.format(now) + "] Cancelling order " + o);
-			}
-		}
-		orders.add(order);
-		logger.info("\tPlacing order " + order);
-	}
+  private List<Order> orders = new ArrayList<Order>();
 
-	public Long getAcctNbr() {
-		return acctNbr;
-	}
+  private List<Transaction> transactions = new ArrayList<Transaction>();
 
-	public void setAcctNbr(Long acctNbr) {
-		this.acctNbr = acctNbr;
-	}
+  public Account()
+  {
 
-	public CurrencyType getCurrencyType() {
-		return currencyType;
-	}
+  }
 
-	public void setCurrencyType(CurrencyType currencyType) {
-		this.currencyType = currencyType;
-	}
+  public void init(double preClose, Date today)
+  {
+    cashAmount = Constants.INIT_CASH_AMOUNT;
+    for (int i = 0; i < Constants.INIT_STOCK_SYMBOLS.length; i++)
+    {
+      if (Constants.INIT_STOCK_VOLUMES[i] > 0)
+      {
+        Stock stock = new Stock(Constants.INIT_STOCK_SYMBOLS[i]);
+        StockHolding sh = new StockHolding();
+        sh.setStock(stock);
+        sh.setQuantity(Constants.INIT_STOCK_VOLUMES[i]);
+        sh.setAvgPrice(preClose);
+        holdings.add(sh);
+      }
+    }
+    // record initial amount in total
+    initialAmount = getTotal();
+  }
 
-	public double getCashAmount() {
-		return cashAmount;
-	}
+  public void reset()
+  {
+    this.cashAmount = Constants.INIT_CASH_AMOUNT;
+    this.orders.clear();
+    this.transactions.clear();
+    this.holdings.clear();
+  }
 
-	public void setCashAmount(double cashAmount) {
-		this.cashAmount = cashAmount;
-	}
+  /**
+   * Place an Sell/Buy order
+   * 
+   * @param now order time
+   * @param order order details
+   * @return result if order has been placed successfully
+   */
+  public boolean placeOrder(Date now, Order order)
+  {
+    // check available fund before placing buy orders
+    // TODO compare available fund to order amount
+    if (cashAmount <= 0) {
+      logger.info("[" + Util.format(now) + "] Insufficient fund available: " + cashAmount + ", order rejected.");
+      order.setStatus(OrderStatus.REJECTED);
+      return false;
+    }
 
-	public List<StockHolding> getHoldings() {
-		return holdings;
-	}
+    Iterator<Order> it = orders.listIterator();
+    while (it.hasNext())
+    {
+      Order o = it.next();
+      if (o.getTxType() == order.getTxType() && o.getStatus() == OrderStatus.OPEN)
+      {
+        // it.remove();
+        o.setStatus(OrderStatus.CANCELLED);
+        logger.info("[" + Util.format(now) + "] Cancelling order " + o);
+      }
+    }
+    orders.add(order);
+    logger.info("\tPlacing order " + order);
+    return true;
+  }
 
-	public void setHoldings(List<StockHolding> holdings) {
-		this.holdings = holdings;
-	}
+  public Long getAcctNbr()
+  {
+    return acctNbr;
+  }
 
-	public List<Order> getOrders() {
-		return orders;
-	}
+  public void setAcctNbr(Long acctNbr)
+  {
+    this.acctNbr = acctNbr;
+  }
 
-	public void setOrders(List<Order> orders) {
-		this.orders = orders;
-	}
+  public CurrencyType getCurrencyType()
+  {
+    return currencyType;
+  }
 
-	public List<Transaction> getTransactions() {
-		return transactions;
-	}
+  public void setCurrencyType(CurrencyType currencyType)
+  {
+    this.currencyType = currencyType;
+  }
 
-	public void setTransactions(List<Transaction> transactions) {
-		this.transactions = transactions;
-	}
+  public double getCashAmount()
+  {
+    return cashAmount;
+  }
 
-	public StockHolding getHolding(Stock stock) {
-	  for (StockHolding sh : holdings) {
-	    if (sh.getStock().getSymbol().equalsIgnoreCase(stock.getSymbol())) {
-	      return sh;
-	    }
-	  }
-	  return null;
-	}
-	
-	
-	public void updateHoldings(Transaction tx) {
-		Stock stock = tx.getStock();
-		TransactionType type = tx.getTxType();
-		double dealPrice = tx.getDealPrice();
-		int qty = tx.getQuantity();
+  public void setCashAmount(double cashAmount)
+  {
+    this.cashAmount = cashAmount;
+  }
 
-		// in hand already
-		if (isInHolding(tx.getStock())) {
-			Iterator<StockHolding> it = holdings.listIterator();
-			// empty first?
-			while (it.hasNext()) {
-				StockHolding sh = it.next();
-				if (sh.getStock().getSymbol()
-						.equalsIgnoreCase(stock.getSymbol())) {
-					switch (type) {
-					case BUY:
-						cashAmount -= qty * dealPrice;
-						double avgPrice = (sh.getAvgPrice() * sh.getQuantity() + dealPrice
-								* qty)
-								/ (sh.getQuantity() + qty);
-						sh.setAvgPrice(avgPrice);
-						sh.setQuantity(sh.getQuantity() + qty);
-						break;
+  public List<StockHolding> getHoldings()
+  {
+    return holdings;
+  }
 
-					case SELL:
-						if (qty > sh.getQuantity()) {
-						  logger.info("Selling quantity exceeds holding in account: "
-											+ qty);
-						} else {
-							cashAmount += qty * dealPrice;
-							int remaining = sh.getQuantity() - qty;
-							if (remaining == 0) {
-								it.remove();
-							} else {
-								sh.setQuantity(remaining);
-							}
+  public void setHoldings(List<StockHolding> holdings)
+  {
+    this.holdings = holdings;
+  }
 
-						}
-						break;
-					}
-				}
-			}
-		}
+  public List<Order> getOrders()
+  {
+    return orders;
+  }
 
-		// not in hand yet
-		else {
-			switch (type) {
-			case BUY:
-				cashAmount -= qty * dealPrice;
-				StockHolding sh = new StockHolding();
-				sh.setStock(tx.getStock());
-				sh.setAvgPrice(tx.getDealPrice());
-				sh.setQuantity(tx.getQuantity());
-				holdings.add(sh);
-				break;
+  public void setOrders(List<Order> orders)
+  {
+    this.orders = orders;
+  }
 
-			case SELL:
-			  logger.error("Error occurred when attempting to sell non-existing stock.");
-				break;
-			}
-		}
+  public List<Transaction> getTransactions()
+  {
+    return transactions;
+  }
 
-	}
+  public void setTransactions(List<Transaction> transactions)
+  {
+    this.transactions = transactions;
+  }
 
-	private boolean isInHolding(Stock stock) {
-		for (StockHolding sh : holdings) {
-			if (sh.getStock().getSymbol().equalsIgnoreCase(stock.getSymbol())) {
-				return true;
-			}
-		}
+  public StockHolding getHolding(Stock stock)
+  {
+    for (StockHolding sh : holdings)
+    {
+      if (sh.getStock().getSymbol().equalsIgnoreCase(stock.getSymbol()))
+      {
+        return sh;
+      }
+    }
+    return null;
+  }
 
-		return false;
-	}
+  public void updateHoldings(Transaction tx)
+  {
+    Stock stock = tx.getStock();
+    TransactionType type = tx.getTxType();
+    double dealPrice = tx.getDealPrice();
+    int qty = tx.getQuantity();
 
-	public double getTotal() {
-	   double total = cashAmount;
-	    for (StockHolding sh : holdings) {
-	      total += sh.getQuantity() * sh.getAvgPrice();
-	    }
-	    return total;
-	}
-	
-	public void showHoldings() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("\r\nCash\t\t");
-		for (StockHolding sh : holdings) {
-			sb.append("Symbol\tQty\tPrice\t\t");
-		}
-		sb.append("Total\t\t");
-		sb.append("Fee\t\t");
-    sb.append("Profit");
+    // in hand already
+    if (isInHolding(tx.getStock()))
+    {
+      Iterator<StockHolding> it = holdings.listIterator();
+      // empty first?
+      while (it.hasNext())
+      {
+        StockHolding sh = it.next();
+        if (sh.getStock().getSymbol().equalsIgnoreCase(stock.getSymbol()))
+        {
+          switch (type)
+          {
+            case BUY:
+              cashAmount -= qty * dealPrice;
+              double avgPrice = (sh.getAvgPrice() * sh.getQuantity() + dealPrice * qty) / (sh.getQuantity() + qty);
+              sh.setAvgPrice(avgPrice);
+              sh.setQuantity(sh.getQuantity() + qty);
+              break;
+
+            case SELL:
+              if (qty > sh.getQuantity())
+              {
+                logger.info("Selling quantity exceeds holding in account: " + qty);
+              }
+              else
+              {
+                cashAmount += qty * dealPrice;
+                int remaining = sh.getQuantity() - qty;
+                if (remaining == 0)
+                {
+                  it.remove();
+                }
+                else
+                {
+                  sh.setQuantity(remaining);
+                }
+
+              }
+              break;
+          }
+        }
+      }
+    }
+
+    // not in hand yet
+    else
+    {
+      switch (type)
+      {
+        case BUY:
+          cashAmount -= qty * dealPrice;
+          StockHolding sh = new StockHolding();
+          sh.setStock(tx.getStock());
+          sh.setAvgPrice(tx.getDealPrice());
+          sh.setQuantity(tx.getQuantity());
+          holdings.add(sh);
+          break;
+
+        case SELL:
+          logger.error("Error occurred when attempting to sell non-existing stock.");
+          break;
+      }
+    }
+
+  }
+
+  private boolean isInHolding(Stock stock)
+  {
+    for (StockHolding sh : holdings)
+    {
+      if (sh.getStock().getSymbol().equalsIgnoreCase(stock.getSymbol()))
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public double getTotal()
+  {
+    double total = cashAmount;
+    for (StockHolding sh : holdings)
+    {
+      total += sh.getQuantity() * sh.getAvgPrice();
+    }
+    return total;
+  }
+
+  public void showHoldings()
+  {
+    StringBuilder sb = new StringBuilder();
+
+    for (StockHolding sh : holdings)
+    {
+      sb.append("\r\nSymbol\tQty\tPrice\t\t");
+    }
+    sb.append("\r\n");
+    for (StockHolding sh : holdings)
+    {
+      sb.append(sh.getStock().getSymbol() + "\t" + sh.getQuantity() + "\t" + Util.format(sh.getAvgPrice()) + "\t\t");
+    }
     sb.append("\r\n");
     
-		sb.append(Util.format(cashAmount) + "\t");
-		if (cashAmount < 1000) {
-		  sb.append("\t");
-		}
+    sb.append("Cash\t\t");
+    sb.append("Total\t\t");
+    sb.append("Fee\t\t");
+    sb.append("Profit");
+    sb.append("\r\n");
 
-		for (StockHolding sh : holdings) {
-			sb.append(sh.getStock().getSymbol() + "\t" + sh.getQuantity()
-					+ "\t" + Util.format(sh.getAvgPrice()) + "\t\t");
-		}
-		double totalAmount = getTotal();
+    sb.append(Util.format(cashAmount) + "\t");
+    if (Math.abs(cashAmount) < 10000 
+        && Math.abs(cashAmount) > 1000
+        && cashAmount > 0)
+    {
+      sb.append("\t");
+    }
+
+    double totalAmount = getTotal();
     sb.append(Util.format(totalAmount) + "\t");
-    double fees = getTransactions().size()*Constants.COMMISSION_FEE;
-    if (fees > 0) {
+    if (totalAmount < 10000)
+    {
+      sb.append("\t");
+    }
+    
+    double fees = getTransactions().size() * Constants.COMMISSION_FEE;
+    if (fees > 0)
+    {
       sb.append(Util.format(fees));
     }
     sb.append("\t\t");
-    double profit = totalAmount-initialAmount-fees;
-    if (Math.abs(profit) > 1) {
+    double profit = totalAmount - initialAmount - fees;
+    if (Math.abs(profit) > 1)
+    {
       sb.append(Util.format(profit));
     }
     sb.append("\r\n");
-		logger.info(sb.toString());
-	}
+    logger.info(sb.toString());
+  }
 
-	public void showOrders() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(Order.printHeaders(CurrencyType.USD));
+  public void showOrders()
+  {
+    StringBuilder sb = new StringBuilder();
+    sb.append(Order.printHeaders(CurrencyType.USD));
 
-		// print out transaction details
-		for (Order order : orders) {
-			sb.append(order + "\r\n");
-		}
-		logger.info(sb.toString());
-	}
+    // print out transaction details
+    for (Order order : orders)
+    {
+      sb.append(order + "\r\n");
+    }
+    logger.info(sb.toString());
+  }
 
-	public void showTransactions() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(Transaction.printHeaders(CurrencyType.USD));
+  public void showTransactions()
+  {
+    StringBuilder sb = new StringBuilder();
+    sb.append(Transaction.printHeaders(CurrencyType.USD));
 
-		// print out transaction details
-		for (Transaction tx : transactions) {
-			sb.append(tx + "\r\n");
-		}
-		logger.info(sb.toString());
-	}
+    // print out transaction details
+    for (Transaction tx : transactions)
+    {
+      sb.append(tx + "\r\n");
+    }
+    logger.info(sb.toString());
+  }
 
 }
