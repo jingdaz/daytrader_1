@@ -93,7 +93,7 @@ public class BrokerService {
 					protectionOrder = fulfillOrder(acct, order, clock);
 					if (protectionOrder != null) {
 						acct.placeOrder(clock, protectionOrder);
-						logger.info("\tPlacing Stop Sell order at " + clock
+						logger.info("\tPlacing Stop Sell order at " + Util.format(clock)
 								+ " to protect new purchase.");
 					}
 				}
