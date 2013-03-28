@@ -52,6 +52,11 @@ public class Constants {
 	/* CCI should be > -120 when considering a buy from over-sold */
 	public static final double CCI_BOTTOM_BUY_LIMIT = -120;
 
+		/* Cross up CCI difference factor limit */
+	public final static double CCI_CROSS_UP_DIFF_FACTOR_LIMIT = 1.10;
+	
+	public final static double CCI_CROSS_DOWN_DIFF_FACTOR_LIMIT = 1.10;
+	
 	/* Super low open */
 	 public static final int CCI_SUPER_OPEN_START_TIME = 390;
 	 public static final int CCI_SUPER_OPEN_END_TIME = 395;

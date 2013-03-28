@@ -103,9 +103,9 @@ public class StockStatus {
 		}
 
 		// drops from CCI >= 100/2
-		return ((chartItems.get(capacity - 1).compareTo(
-				chartItems.get(capacity - 2)) < 0) && chartItems.get(
-				capacity - 2).getCci() > Constants.CCI_TOP_DIVERGENCE / 2);
+		return ((chartItems.get(capacity - 1).compareTo(chartItems.get(capacity - 2)) < 0) 
+				&& chartItems.get(capacity - 2).getCci() > Constants.CCI_TOP_DIVERGENCE / 2)
+				&& Math.abs(chartItems.get(capacity - 2).getCci()/chartItems.get(capacity - 1).getCci()) > Constants.CCI_CROSS_UP_DIFF_FACTOR_LIMIT;
 	}
 
 	public boolean picksBtmDvg() {
@@ -116,9 +116,9 @@ public class StockStatus {
 		}
 
 		// picks up from CCI <= -100/2
-		return ((chartItems.get(capacity - 1).compareTo(
-				chartItems.get(capacity - 2)) > 0) && chartItems.get(
-				capacity - 2).getCci() < Constants.CCI_BOTTOM_DIVERGENCE / 2);
+		return ((chartItems.get(capacity - 1).compareTo(chartItems.get(capacity - 2)) > 0) 
+				&& chartItems.get(capacity - 2).getCci() < Constants.CCI_BOTTOM_DIVERGENCE / 2)
+				&& Math.abs(chartItems.get(capacity - 2).getCci()/chartItems.get(capacity - 1).getCci()) > Constants.CCI_CROSS_UP_DIFF_FACTOR_LIMIT;
 	}
 
 	public boolean crossUp() {
@@ -139,7 +139,7 @@ public class StockStatus {
 		// within 60 minutes, preHigh rises 5%+ from yesterday close, curItem
 		// drops 4% from preHigh
 		if ((preHigh.getHigh() / preClose - 1.0) > Constants.PRICE_CROSS_DOWN_PREHIGH_FACTOR
-				&& (curItem.getTypical() / preHigh.getHigh() - 1.0) < Constants.PRICE_CROSS_DOWN_PREHIGH_FACTOR
+				&& (curItem.getTypical() / preHigh.getHigh() - 1.0) < Constants.PRICE_CROSS_DOWN_CURITEM_FACTOR
 				&& (curItem.getTimestamp().getTime() - preHigh.getTimestamp()
 						.getTime()) < Constants.PRICE_CROSS_DOWN_TIME_INTERVAL) {
 			return true;
