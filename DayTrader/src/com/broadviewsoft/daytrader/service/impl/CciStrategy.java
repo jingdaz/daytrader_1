@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import com.broadviewsoft.daytrader.domain.Account;
 import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.Order;
+import com.broadviewsoft.daytrader.domain.OrderStatus;
 import com.broadviewsoft.daytrader.domain.OrderType;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.StockHolding;
@@ -37,12 +38,25 @@ public class CciStrategy extends TradeStrategy {
 				break;
 			}
 		}
-//		double cciSlope = (stockStatus.getCurItem().getCci() - stockStatus
-//				.getPreHigh().getCci()) / stockStatus.getPreHigh().getCci();
-//		double priceSlope = (stockStatus.getCurItem().getTypical() - stockStatus
-//				.getPreHigh().getTypical())
-//				/ stockStatus.getPreHigh().getTypical();
+		
 		logger.info("Executing on " + Util.format(stockStatus.getTimestamp()));
+		
+		if (stockStatus.isWeakest()) {
+      logger.info("Weakest market; cautious to jump in!");
+    }
+		
+    if (stockStatus.isStrongest()) {
+      logger.info("Strongest market; hold your chips tight!");
+    }
+
+		if (stockStatus.isSuperLowOpen()) {
+      logger.info("Super low open; buy from CCI -120 ~ -100!");
+    }
+		
+		if (stockStatus.isSuperHighOpen()) {
+      logger.info("Super high open; sell from -2% of highest!");
+    }
+		
 		if (stockStatus.crossUp()) {
 			logger.info("Price cross up; notice yesterday close/high, 10% of lowest!");
 		}
@@ -60,12 +74,12 @@ public class CciStrategy extends TradeStrategy {
 		}
 
 		// Top divergence: drops from CCI >= 100
+		// Sell at CCI drops to 200 ~ 100
 		if ((targetHolding != null 
 				&& !stockStatus.isStrongest() 
 				&& stockStatus.dropsTopDvg())
 				&& !stockStatus.isSuperHighOpen()
-				&& stockStatus.getCurItem().getCci() < Constants.CCI_TOP_SELL_LIMIT
-				&& stockStatus.getCurItem().getCci() > Constants.CCI_TOP_DIVERGENCE) {
+				&& stockStatus.isSellingRange()) {
 			int qty = 0;
 			if (targetHolding.getQuantity() > Constants.DEFAULT_QUANTITY) {
 				qty = targetHolding.getQuantity() / 2;
@@ -77,7 +91,7 @@ public class CciStrategy extends TradeStrategy {
 			account.placeOrder(stockStatus.getTimestamp(), sell);
 		}
 		// Super high open; use trailing stop -2% of highest
-		else if (stockStatus.isSuperHighOpen()) {
+		else if (targetHolding != null && stockStatus.isSuperHighOpen()) {
 		  double limitWin = stockStatus.getPreHigh().getHigh() * Constants.LOCKWIN_PRE_HIGH_FACTOR;
 		  Order stop = Order.createOrder(stockStatus.getTimestamp(),
           TransactionType.SELL, OrderType.STOP,
@@ -87,15 +101,53 @@ public class CciStrategy extends TradeStrategy {
 
 		// Bottom divergence: picks up from CCI <= -100
 		if (!stockStatus.isWeakest() 
-        && stockStatus.getCurItem().getCci() > Constants.CCI_BOTTOM_BUY_LIMIT
- 				&& (stockStatus.picksBtmDvg()
- 				    || stockStatus.isSuperLowOpen()
- 				    || stockStatus.getCurItem().getCci() < Constants.CCI_BOTTOM_DIVERGENCE
- 				    /*|| (stockStatus.getCurItem().getCci() - stockStatus.getPreLow().getCci() > 150)*/)) {
+		    && !stockStatus.isSuperLowOpen()
+ 				&& stockStatus.picksBtmDvg()
+ 				&& stockStatus.isBuyingRange()
+ 				&& (stockStatus.turningPointBelowFair()
+ 				    || stockStatus.isCciBigSlope())) {
 			Order buy = Order.createOrder(stockStatus.getTimestamp(),
 					TransactionType.BUY, OrderType.MARKET,
 					Constants.DEFAULT_QUANTITY);
 			account.placeOrder(stockStatus.getTimestamp(), buy);
+		} 
+		
+		// Super low open; buy at CCI -120 ~ -100 and RSI < 30
+		else if (stockStatus.isSuperLowOpen() 
+		    && stockStatus.isBuyingRange()
+		    && (stockStatus.isRsiOverSold() || stockStatus.isRsiReversed())) {
+		  Order low = Order.createOrder(stockStatus.getTimestamp(),
+          TransactionType.BUY, OrderType.MARKET,
+          Constants.DEFAULT_QUANTITY);
+      account.placeOrder(stockStatus.getTimestamp(), low);
+		}
+		
+		// adjust existing orders
+		List<Order> orders = account.getOrders();
+		for (Order order : orders) {
+		  if (order.getTxType()==TransactionType.SELL 
+		      && order.getStatus()==OrderStatus.OPEN
+		      && (order.getOrderType()==OrderType.STOP || order.getOrderType()==OrderType.STOPLIMIT)) {
+		    double curFactor = stockStatus.getCurItem().getTypical() / order.getCostPrice();
+		    
+		    // tight up stop price to lock profit
+		    if ( curFactor > Constants.STOP_ORDER_LOCKWIN_FACTOR) {
+		      double newStop = order.getStopPrice()*(1.0+(curFactor-Constants.STOP_ORDER_TRAILING_FACTOR)/2);
+		      if (newStop > order.getStopPrice()) {
+		        order.setStopPrice(newStop);
+		        logger.info("[" + Util.format(stockStatus.getTimestamp()) + "] Raising Stop price to lock profit on " + order);
+		      }
+		    }
+		    
+		    // set trailing stop price
+		    else if ( curFactor > Constants.STOP_ORDER_TRAILING_FACTOR) {
+		      double newStop = order.getStopPrice()*(1.0+curFactor-Constants.STOP_ORDER_TRAILING_FACTOR);
+		      if (newStop > order.getStopPrice()) {
+		        order.setStopPrice(newStop);
+	          logger.info("[" + Util.format(stockStatus.getTimestamp()) + "] Moved Trailing Stop price up on " + order);
+		      }
+		    }
+		  }
 		}
 	}
 

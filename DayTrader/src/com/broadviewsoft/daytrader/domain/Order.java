@@ -12,6 +12,7 @@ public class Order {
 	protected OrderStatus status;
 	protected int quantity;
 
+	 protected double costPrice;
 	protected double limitPrice;
 	protected double stopPrice;
 
@@ -86,7 +87,17 @@ public class Order {
 		this.stopPrice = stopPrice;
 	}
 
-	public static Order createOrder(Date orderTime, TransactionType txType,
+	public double getCostPrice()
+  {
+    return costPrice;
+  }
+
+  public void setCostPrice(double costPrice)
+  {
+    this.costPrice = costPrice;
+  }
+
+  public static Order createOrder(Date orderTime, TransactionType txType,
 			OrderType orderType, int qty) {
 		return createOrder(orderTime, txType, orderType, qty, 0, 0);
 	}

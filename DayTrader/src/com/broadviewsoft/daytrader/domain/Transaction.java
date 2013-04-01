@@ -20,6 +20,7 @@ public class Transaction extends Order {
 		this.txType = order.txType;
 		this.orderType = order.orderType;
 		this.quantity = order.quantity;
+		this.dealPrice = order.costPrice;
 		this.limitPrice = order.limitPrice;
 		this.stopPrice = order.stopPrice;
 		this.status = OrderStatus.EXECUTED;

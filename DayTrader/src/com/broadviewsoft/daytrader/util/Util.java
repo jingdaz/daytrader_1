@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
@@ -112,6 +114,14 @@ public class Util {
 		return sb.toString();
 	}
 
+	public static int marketOpenMins(Date date) {
+    Calendar cal = new GregorianCalendar();
+    cal.setTime(date);
+    int hour = cal.get(Calendar.HOUR_OF_DAY);
+    int min = cal.get(Calendar.MINUTE);
+    return (60 * hour + min);
+	}
+	
 	public static void main(String[] args) {
 		String filename = "D:/projects/DayTrader/resources/UVXY_MIN.csv";
 		String line = getLastLine(filename);
