@@ -54,3 +54,7 @@ There are four steps to calculating the Mean Deviation:
 CCI Strategy
 
 http://www.investopedia.com/articles/forex/08/cci.asp
+
+10% principle
+drops from highest
+picks up from lowest
