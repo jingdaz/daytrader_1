@@ -40,6 +40,12 @@ public class Constants {
 	public final static int STATUS_INTERVAL = 36;
 	public final static int DEFAULT_QUANTITY = 1000;
 
+  /* RSI oversold */
+  public static final double RSI_OVERSOLD_LIMIT = 30;
+
+  /* RSI overbought */
+  public static final double RSI_OVERBOUGHT_LIMIT = 70;
+	
 	public final static double CCI_TOP_DIVERGENCE = 100;
 	public final static double CCI_BOTTOM_DIVERGENCE = -100;
 
@@ -52,17 +58,21 @@ public class Constants {
 	/* CCI should be > -120 when considering a buy from over-sold */
 	public static final double CCI_BOTTOM_BUY_LIMIT = -120;
 
+	/* CCI picks up with big slope */
+  public static final double CCI_ZERO_AXIS_LIMIT = 200;
+  
 		/* Cross up CCI difference factor limit */
 	public final static double CCI_CROSS_UP_DIFF_FACTOR_LIMIT = 1.10;
 	
 	public final static double CCI_CROSS_DOWN_DIFF_FACTOR_LIMIT = 1.10;
 	
 	/* Super low open */
-	 public static final int CCI_SUPER_OPEN_START_TIME = 390;
-	 public static final int CCI_SUPER_OPEN_END_TIME = 395;
-	 public static final double CCI_SUPER_LOW_LIMIT = -300;
+	 public static final int CCI_SUPER_OPEN_START_TIME = 570;
+	 public static final int CCI_SUPER_OPEN_END_TIME = 575;
+	 public static final int CCI_SUPER_OPEN_LIMIT_TIME = 630;
+	 public static final double CCI_SUPER_LOW_LIMIT = -270;
 	 /* Super high open */
-	 public static final double CCI_SUPER_HIGH_LIMIT = 300;
+	 public static final double CCI_SUPER_HIGH_LIMIT = 270;
    
 	/* Alert */
 	public static final double STOCK_PRICE_UP_ALERT = 0.02;
@@ -74,6 +84,9 @@ public class Constants {
   public static final int RSI_INTERVAL = 14;
 	public static final int CCI_INTERVAL = 20;
 
+	/* Valid CCI difference limit to avoid cross-day */
+  public static final double CCI_DIFF_LIMIT = 250;
+  
 	/* Price cross up or down */
 	public static final double PRICE_CROSS_UP_PRELOW_FACTOR = -0.06;
 	public static final double PRICE_CROSS_UP_CURITEM_FACTOR = 0.05;
@@ -140,6 +153,9 @@ public class Constants {
 	public static final double PROTECTION_STOP_PRICE = 0.98;
 
 	public static final double PROTECTION_LIMIT_PRICE = 0.98;
+
+  public static final double STOP_ORDER_TRAILING_FACTOR = 1.02;
+  public static final double STOP_ORDER_LOCKWIN_FACTOR = 1.03;
 
 	public static List<Date> MARKET_CLOSE_DAYS = new ArrayList<Date>();
 	public static List<Date> MARKET_CLOSE_EARLY_DAYS = new ArrayList<Date>();

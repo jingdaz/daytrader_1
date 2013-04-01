@@ -61,8 +61,8 @@ public class DayTraderSimulator {
 		simulator.addStrategies(new CciStrategy());
 //		simulator.addStrategies(new RsiStrategy());
 		String[] symbols = Constants.INIT_STOCK_SYMBOLS;
-		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("03/25/2013");
-		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("03/27/2013");
+		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("03/28/2013");
+		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("03/28/2013");
 		for (String symbol : symbols) {
 		  simulator.simulate(symbol, startDate, endDate);
 		}

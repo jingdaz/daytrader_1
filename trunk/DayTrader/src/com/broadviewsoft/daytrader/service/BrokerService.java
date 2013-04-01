@@ -126,9 +126,9 @@ public class BrokerService {
 					logger.info("\tExecuted Limit Buy order on [" + Util.format(clock)
 							+ "]");
 					order.setStatus(OrderStatus.EXECUTED);
+					order.setCostPrice(deal);
 					Transaction tx = new Transaction(order);
 					tx.setDealTime(clock);
-					tx.setDealPrice(deal);
 					tx.setCommission(Constants.COMMISSION_FEE);
 					account.getTransactions().add(tx);
 					buyFulfilled = true;
@@ -141,9 +141,9 @@ public class BrokerService {
 			  deal = typ;
 				logger.info("\tExecuted Market Buy order on [" + Util.format(clock) + "]");
 				order.setStatus(OrderStatus.EXECUTED);
+        order.setCostPrice(deal);
 				Transaction tx = new Transaction(order);
 				tx.setDealTime(clock);
-				tx.setDealPrice(typ);
 				tx.setCommission(Constants.COMMISSION_FEE);
 				account.getTransactions().add(tx);
 				buyFulfilled = true;
@@ -156,6 +156,7 @@ public class BrokerService {
           deal = (order.getStopPrice() <= low ? typ : order.getStopPrice());
 					logger.info("\tExecuted Stop Buy order on " + Util.format(clock));
 					order.setStatus(OrderStatus.EXECUTED);
+					order.setCostPrice(deal);
 					Transaction tx2 = new Transaction(order);
 					tx2.setDealTime(clock);
 					tx2.setDealPrice(deal);
@@ -193,9 +194,9 @@ public class BrokerService {
 				  deal = (order.getLimitPrice() <= low ? typ : order.getLimitPrice());
 					logger.info("\tExecuted Limit Sell order on " + Util.format(clock));
 					order.setStatus(OrderStatus.EXECUTED);
+					order.setCostPrice(deal);
 					Transaction tx2 = new Transaction(order);
 					tx2.setDealTime(clock);
-					tx2.setDealPrice(deal);
 					tx2.setCommission(Constants.COMMISSION_FEE);
 					account.getTransactions().add(tx2);
 					// update holdings
@@ -207,9 +208,9 @@ public class BrokerService {
 			  deal = typ;
 				logger.info("\tExecuted Market Sell order on " + Util.format(clock));
 				order.setStatus(OrderStatus.EXECUTED);
+				order.setCostPrice(deal);
 				Transaction tx = new Transaction(order);
 				tx.setDealTime(clock);
-				tx.setDealPrice(typ);
 				tx.setCommission(Constants.COMMISSION_FEE);
 				account.getTransactions().add(tx);
 				// update holdings
@@ -221,9 +222,9 @@ public class BrokerService {
 				  deal = (order.getStopPrice() >= high ? typ : order.getStopPrice());
 					logger.info("\tExecuted Stop Sell order on " + Util.format(clock));
 					order.setStatus(OrderStatus.EXECUTED);
+					order.setCostPrice(deal);
 					Transaction tx2 = new Transaction(order);
 					tx2.setDealTime(clock);
-					tx2.setDealPrice(deal);
 					tx2.setCommission(Constants.COMMISSION_FEE);
 					account.getTransactions().add(tx2);
 					// update holdings
