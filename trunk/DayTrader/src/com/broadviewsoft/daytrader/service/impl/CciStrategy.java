@@ -15,19 +15,16 @@ import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.StockHolding;
 import com.broadviewsoft.daytrader.domain.StockStatus;
 import com.broadviewsoft.daytrader.domain.TransactionType;
-import com.broadviewsoft.daytrader.service.DataFeeder;
+import com.broadviewsoft.daytrader.service.DataFeederFactory;
 import com.broadviewsoft.daytrader.service.TradeStrategy;
 import com.broadviewsoft.daytrader.util.Util;
 
 public class CciStrategy extends TradeStrategy {
 	private static Log logger = LogFactory.getLog(CciStrategy.class);
 
-	private DataFeeder dataFeeder = null;
-
 	public CciStrategy() {
 		period = Period.MIN5;
-		dataFeeder = new DataFeeder();
-		dataFeeder.init(Constants.STOCKS_WITH_DATA);
+		dataFeeder = DataFeederFactory.newInstance();
 	}
 
 	public void execute(StockStatus stockStatus, Account account) {

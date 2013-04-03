@@ -17,6 +17,7 @@ import com.broadviewsoft.daytrader.domain.StockStatus;
  */
 public abstract class TradeStrategy implements ITradeStrategy {
 	protected Period period = null;
+	protected AbstractDataFeeder dataFeeder = null;
 
 	public Period getPeriod() {
 		return period;
@@ -37,8 +38,8 @@ public abstract class TradeStrategy implements ITradeStrategy {
 	public StockStatus analyze(BrokerService broker, String symbol,
 			Period period, Date date, int ytaItemIndex) {
 		StockStatus curStatus = new StockStatus(symbol, date);
-		List<StockItem> data = broker.collectData(symbol, period, date);
-		StockItem ytaItem = broker.getYesdayItem(symbol, ytaItemIndex);
+		List<StockItem> data = dataFeeder.getHistoryData(symbol, period, date);
+		StockItem ytaItem = dataFeeder.getYesdayItem(symbol, ytaItemIndex);
 		StockItem preHigh = findPreHigh(data);
 		StockItem preLow = findPreLow(data);
 		StockItem curItem = data.get(data.size() - 1);

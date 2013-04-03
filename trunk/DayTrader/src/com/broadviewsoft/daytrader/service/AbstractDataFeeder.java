@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.DataException;
 import com.broadviewsoft.daytrader.domain.DataFileType;
 import com.broadviewsoft.daytrader.domain.Period;
@@ -17,43 +18,15 @@ import com.broadviewsoft.daytrader.domain.StockItem;
 import com.broadviewsoft.daytrader.service.impl.HistoryDataFileService;
 import com.broadviewsoft.daytrader.util.Util;
 
-public class DataFeeder {
-	private static Log logger = LogFactory.getLog(DataFeeder.class);
+public abstract class AbstractDataFeeder {
+	private static Log logger = LogFactory.getLog(AbstractDataFeeder.class);
 
-	private boolean prodMode = false;
+	protected boolean prodMode = false;
+  protected boolean initialized = false;
+  
+	protected List<StockData> allData = new ArrayList<StockData>();
 
-	private IHistoryDataService service = new HistoryDataFileService();
-
-	private List<StockData> allData = new ArrayList<StockData>();
-
-	public DataFeeder() {
-		this(false);
-	}
-
-	public DataFeeder(boolean prodMode) {
-		this.prodMode = prodMode;
-	}
-
-	public void init(String[] symbols) {
-		try {
-			for (String symbol : symbols) {
-				StockData sd = new StockData();
-				sd.setStock(new Stock(symbol));
-				sd.setMins(service.loadData(symbol, Period.MIN,
-						DataFileType.BVS));
-				sd.setMin5s(service.loadData(symbol, Period.MIN5,
-						DataFileType.BVS));
-				sd.setDays(service.loadData(symbol, Period.DAY,
-						DataFileType.BVS));
-				allData.add(sd);
-				logger.debug("Finished loading historical data for Stock: "
-						+ symbol);
-			}
-		} catch (DataException e) {
-			logger.error("Error when loading historical data.", e);
-		}
-
-	}
+	public abstract void init(String[] symbols);
 
 	public boolean isProdMode() {
 		return prodMode;
@@ -63,7 +36,12 @@ public class DataFeeder {
 		this.prodMode = prodMode;
 	}
 
-	public List<StockItem> getHistoryData(String symbol, Period period,
+  public StockItem getYesdayItem(String symbol, int index) {
+    return getItemByIndex(symbol, Period.DAY, index);
+  }
+
+
+	protected List<StockItem> getHistoryData(String symbol, Period period,
 			Date cutTime) {
 		List<StockItem> result = new ArrayList<StockItem>();
 		for (StockData sd : allData) {
@@ -83,7 +61,7 @@ public class DataFeeder {
 		return result;
 	}
 
-	public StockItem getItemByIndex(String symbol, Period period, int index) {
+	protected StockItem getItemByIndex(String symbol, Period period, int index) {
     List<StockItem> targetItems = null;
     StockItem targetItem = null;
     
