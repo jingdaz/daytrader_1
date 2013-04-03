@@ -33,17 +33,19 @@ public class TradePlatform {
 	private static Log logger = LogFactory.getLog(TradePlatform.class);
 
 	private BrokerService broker = null;
+	private AbstractDataFeeder dataFeeder = null;
 	private Account account = null;
 
 	public TradePlatform() {
 		broker = new BrokerService();
+		dataFeeder = DataFeederFactory.newInstance();
 		account = new Account();
 	}
 
 	public void tradeDaily(ITradeStrategy strategy, String symbol, Date tradeDate) {
 		Period period = strategy.getPeriod();
 
-		int tdaItemIndex = broker.getDataFeeder().getCurItemIndex(symbol, tradeDate, Period.DAY);
+		int tdaItemIndex = dataFeeder.getCurItemIndex(symbol, tradeDate, Period.DAY);
 		int ytaItemIndex = tdaItemIndex - 1;
 		logger.info("Index for today and yesterday " + tdaItemIndex + "/" + ytaItemIndex);
 
@@ -52,17 +54,16 @@ public class TradePlatform {
 			return;
 		}
 
-		double curOpen = broker.getDataFeeder().getPriceByIndex(symbol,
+		double curOpen = dataFeeder.getPriceByIndex(symbol,
 				Period.DAY, tdaItemIndex, PriceType.Open);
-		double preClose = broker.getDataFeeder().getPriceByIndex(symbol,
+		double preClose = dataFeeder.getPriceByIndex(symbol,
 				Period.DAY, ytaItemIndex, PriceType.Close);
 
 		account.init(preClose, tradeDate);
 		broker.registerAccount(account);
 		account.showHoldings();
 
-		// strategy.handleOverNight(account, symbol, tradeDate, preClose,
-		// curOpen);
+// strategy.handleOverNight(account, symbol, tradeDate, preClose, curOpen);
 
 		Date start = new Date(tradeDate.getTime() + Constants.MARKET_OPEN_TIME);
 		Date end = new Date(tradeDate.getTime() + Constants.MARKET_CLOSE_TIME);

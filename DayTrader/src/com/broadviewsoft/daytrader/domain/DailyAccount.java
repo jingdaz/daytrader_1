@@ -2,11 +2,11 @@ package com.broadviewsoft.daytrader.domain;
 
 import java.util.Date;
 
-public class TimedAccount {
+public class DailyAccount {
 	private Date dateTime;
 	private Account account;
 
-	public TimedAccount() {
+	public DailyAccount() {
 
 	}
 

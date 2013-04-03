@@ -14,7 +14,9 @@ import com.broadviewsoft.daytrader.domain.Account;
 import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.PriceType;
+import com.broadviewsoft.daytrader.service.AbstractDataFeeder;
 import com.broadviewsoft.daytrader.service.BrokerService;
+import com.broadviewsoft.daytrader.service.DataFeederFactory;
 import com.broadviewsoft.daytrader.service.TradePlatform;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
 import com.broadviewsoft.daytrader.service.impl.CciStrategy;
@@ -37,6 +39,7 @@ public class DayTraderPredictor {
 	private BrokerService broker = null;
 	private Account account = null;
 	private ITradeStrategy strategy = null;
+	private AbstractDataFeeder dataFeeder = DataFeederFactory.newInstance();
 
 	public DayTraderPredictor() {
 		broker = new BrokerService();
@@ -74,7 +77,7 @@ public class DayTraderPredictor {
 		Calendar calToday = new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
 		Date today = calToday.getTime();
 		
-	    int todayItemIndex = broker.getDataFeeder().getCurItemIndex(symbol, today, Period.DAY);
+	    int todayItemIndex = dataFeeder.getCurItemIndex(symbol, today, Period.DAY);
 	    int yesterdayItemIndex = todayItemIndex - 1;
 	    
 	    if (todayItemIndex < 0 || yesterdayItemIndex < 0) {
@@ -82,8 +85,8 @@ public class DayTraderPredictor {
 	    	return;
 	    }
 	    
-	    double curOpen = broker.getDataFeeder().getPriceByIndex(symbol, Period.DAY, todayItemIndex, PriceType.Open);
-	    double preClose = broker.getDataFeeder().getPriceByIndex(symbol, Period.DAY, yesterdayItemIndex, PriceType.Close);
+	    double curOpen = dataFeeder.getPriceByIndex(symbol, Period.DAY, todayItemIndex, PriceType.Open);
+	    double preClose = dataFeeder.getPriceByIndex(symbol, Period.DAY, yesterdayItemIndex, PriceType.Close);
 		
 		account.init(preClose, today);
 

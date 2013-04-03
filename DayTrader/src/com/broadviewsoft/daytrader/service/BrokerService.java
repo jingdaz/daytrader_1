@@ -28,24 +28,12 @@ public class BrokerService {
 
 	private List<Account> accounts = new ArrayList<Account>();
 
-	private DataFeeder dataFeeder = null;
-
+	private AbstractDataFeeder dataFeeder = null; 
+	
 	public BrokerService() {
-		dataFeeder = new DataFeeder(Constants.PROD_MODE);
-		dataFeeder.init(Constants.STOCKS_WITH_DATA);
+	  dataFeeder = DataFeederFactory.newInstance();
 	}
 
-	// TODO Real-time data feed
-	/**
-	 * Retrieve current stock price; Use data feed for now. To obtain real-time
-	 * price, data feed should be used
-	 * 
-	 * @param timestamp
-	 * @return
-	 */
-	private double getCurPrice(Stock stock, Date timestamp, Period period, PriceType type) {
-		return dataFeeder.getPrice(stock.getSymbol(), timestamp,	period, type);
-	}
 
 	public List<Account> getAccounts() {
 		return accounts;
@@ -61,23 +49,7 @@ public class BrokerService {
 		}
 	}
 
-	public DataFeeder getDataFeeder() {
-		return dataFeeder;
-	}
 
-	public void setDataFeeder(DataFeeder dataFeeder) {
-		this.dataFeeder = dataFeeder;
-	}
-
-	public List<StockItem> collectData(String symbol, Period period,
-			Date cutTime) {
-		return dataFeeder.getHistoryData(symbol, period, cutTime);
-	}
-
-	public StockItem getYesdayItem(String symbol, int index) {
-	  return dataFeeder.getItemByIndex(symbol, Period.DAY, index);
-	}
-	
 	// FIXME java.util.ConcurrentModificationException
 	public void checkOrder(Date clock) {
 		Order protectionOrder = null;
@@ -103,9 +75,9 @@ public class BrokerService {
 
 	private Order fulfillOrder(Account account, Order order, Date clock) {
 		Order result = null;
-		double typ = getCurPrice(order.getStock(), clock, Period.MIN, PriceType.Typical);
-		double low = getCurPrice(order.getStock(), clock, Period.MIN, PriceType.Low);
-		double high = getCurPrice(order.getStock(), clock, Period.MIN, PriceType.High);
+		double typ = dataFeeder.getPrice(order.getStock().getSymbol(), clock, Period.MIN, PriceType.Typical);
+		double low = dataFeeder.getPrice(order.getStock().getSymbol(), clock, Period.MIN, PriceType.Low);
+		double high = dataFeeder.getPrice(order.getStock().getSymbol(), clock, Period.MIN, PriceType.High);
 		
 		if (typ <= 0) {
 			logger.info("No historitcal price data found for "
