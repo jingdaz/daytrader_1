@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.domain.Account;
 import com.broadviewsoft.daytrader.domain.Constants;
+import com.broadviewsoft.daytrader.domain.DailyAccount;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.PriceType;
 import com.broadviewsoft.daytrader.domain.StockStatus;
@@ -33,48 +34,52 @@ public class TradePlatform {
 	private static Log logger = LogFactory.getLog(TradePlatform.class);
 
 	private BrokerService broker = null;
-	private AbstractDataFeeder dataFeeder = null;
-	private Account account = null;
+	private IDataFeeder dataFeeder = null;
 
 	public TradePlatform() {
 		broker = new BrokerService();
 		dataFeeder = DataFeederFactory.newInstance();
-		account = new Account();
 	}
 
-	public void tradeDaily(ITradeStrategy strategy, String symbol, Date tradeDate) {
+	public void tradeDaily(Account account, ITradeStrategy strategy,
+			String symbol, Date tradeDate) {
 		Period period = strategy.getPeriod();
 
-		int tdaItemIndex = dataFeeder.getCurItemIndex(symbol, tradeDate, Period.DAY);
+		int tdaItemIndex = dataFeeder.getCurItemIndex(symbol, tradeDate,
+				Period.DAY);
 		int ytaItemIndex = tdaItemIndex - 1;
-		logger.info("Index for today and yesterday " + tdaItemIndex + "/" + ytaItemIndex);
+		logger.info("Index for today and yesterday " + tdaItemIndex + "/"
+				+ ytaItemIndex);
 
 		if (tdaItemIndex < 0 || ytaItemIndex < 0) {
 			logger.error("No open/close price found on " + tradeDate);
 			return;
 		}
 
-		double curOpen = dataFeeder.getPriceByIndex(symbol,
-				Period.DAY, tdaItemIndex, PriceType.Open);
-		double preClose = dataFeeder.getPriceByIndex(symbol,
-				Period.DAY, ytaItemIndex, PriceType.Close);
+		double curOpen = dataFeeder.getPriceByIndex(symbol, Period.DAY,
+				tdaItemIndex, PriceType.Open);
+		double curClose = dataFeeder.getPriceByIndex(symbol, Period.DAY,
+        tdaItemIndex, PriceType.Close);
+		double preClose = dataFeeder.getPriceByIndex(symbol, Period.DAY,
+				ytaItemIndex, PriceType.Close);
 
-		account.init(preClose, tradeDate);
-		broker.registerAccount(account);
-		account.showHoldings();
+		account.init(preClose);
+		account.showHoldings(tradeDate, preClose);
 
-// strategy.handleOverNight(account, symbol, tradeDate, preClose, curOpen);
+		// strategy.handleOverNight(account, symbol, tradeDate, preClose,
+		// curOpen);
 
 		Date start = new Date(tradeDate.getTime() + Constants.MARKET_OPEN_TIME);
 		Date end = new Date(tradeDate.getTime() + Constants.MARKET_CLOSE_TIME);
 
 		Date now = start;
+		StockStatus status = null;
 		while (now.before(end)) {
 			for (int i = 0; i < period.minutes(); i++) {
 				broker.checkOrder(now);
 				if (i == 0 && !Constants.OVERNIGHT_ONLY) {
-					StockStatus status = strategy.analyze(broker, symbol,
-							period, now, ytaItemIndex);
+					status = strategy.analyze(broker, symbol, period, now,
+							ytaItemIndex);
 					// check order execution after 1 minute - simulate slow
 					// order
 					// entry on mobile phone
@@ -86,11 +91,12 @@ public class TradePlatform {
 			}
 		}
 
-		// account.showOrders();
-		account.showTransactions();
-		account.showHoldings();
-		// reset account for future
-		account.reset();
+		account.showOrders(tradeDate);
+		account.showTransactions(tradeDate);
+		account.showHoldings(tradeDate, curClose);
+		account.updateProfit(tradeDate, curClose);
+		// refresh account for future
+		account.flush();
 	}
 
 	/**
@@ -100,8 +106,12 @@ public class TradePlatform {
 	 * @param startDate
 	 * @param endDate
 	 */
-	public void trade(ITradeStrategy strategy, String symbol, Date startDate,
-			Date endDate) {
+	public void trade(Account account, ITradeStrategy strategy, String symbol,
+			Date startDate, Date endDate) {
+		// register account to broker first
+		broker.registerAccount(account);
+		
+		// start trade
 		Date today = startDate;
 		Date nextDay = null;
 		while (!today.after(endDate)) {
@@ -118,7 +128,7 @@ public class TradePlatform {
 				logger.info("Market opens an half day today; Closed at 1:00 PM");
 				// FIXME tradeHalfDay(strategy, symbol, today);
 			} else {
-				tradeDaily(strategy, symbol, today);
+				tradeDaily(account, strategy, symbol, today);
 			}
 			nextDay = new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS);
 			if (TimeZone.getDefault().inDaylightTime(today)
@@ -131,6 +141,7 @@ public class TradePlatform {
 			today = nextDay;
 		}
 
+		account.showProfits();
 	}
 
 }

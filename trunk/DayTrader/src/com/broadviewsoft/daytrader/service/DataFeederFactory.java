@@ -2,9 +2,9 @@ package com.broadviewsoft.daytrader.service;
 
 public class DataFeederFactory
 {
-  private static MockDataFeeder feeder = null;
+  private static IDataFeeder feeder = null;
 
-  public static synchronized MockDataFeeder newInstance() {
+  public static synchronized IDataFeeder newInstance() {
     if (feeder == null) {
       feeder = new MockDataFeeder();
     }

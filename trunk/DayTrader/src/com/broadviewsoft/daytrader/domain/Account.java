@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,7 +17,7 @@ public class Account
 {
   private static Log logger = LogFactory.getLog(Account.class);
 
-  private Long acctNbr = Constants.DEFAULT_ACCOUNT_NUMBER;
+  private long acctNbr = 0;
 
   private CurrencyType currencyType = CurrencyType.USD;
 
@@ -27,13 +30,15 @@ public class Account
   private List<Order> orders = new ArrayList<Order>();
 
   private List<Transaction> transactions = new ArrayList<Transaction>();
+  // sorted by keys
+  private Map<Date, Double> dailyProfits = new TreeMap<Date, Double>();
 
   public Account()
   {
-
+	  acctNbr = Constants.DEFAULT_ACCOUNT_NUMBER;
   }
 
-  public void init(double preClose, Date today)
+  public void init(double preClose)
   {
     cashAmount = Constants.INIT_CASH_AMOUNT;
     for (int i = 0; i < Constants.INIT_STOCK_SYMBOLS.length; i++)
@@ -49,15 +54,19 @@ public class Account
       }
     }
     // record initial amount in total
-    initialAmount = getTotal();
+    initialAmount = getTotal(preClose);
   }
 
-  public void reset()
+  public void flush()
   {
-    this.cashAmount = Constants.INIT_CASH_AMOUNT;
-    this.orders.clear();
-    this.transactions.clear();
-    this.holdings.clear();
+//    this.cashAmount = Constants.INIT_CASH_AMOUNT;
+    initialAmount = 0;
+    for (Order order : orders) {
+      if (order.getStatus() == OrderStatus.OPEN) {
+        order.setStatus(OrderStatus.EXPIRED);
+      }
+    }
+//    this.holdings.clear();
   }
 
   /**
@@ -85,20 +94,20 @@ public class Account
       {
         // it.remove();
         o.setStatus(OrderStatus.CANCELLED);
-        logger.info("[" + Util.format(now) + "] Cancelling order " + o);
+        logger.info("[" + Util.format(now) + "] Cancelling order of same type " + o);
       }
     }
     orders.add(order);
-    logger.info("\tPlacing order " + order);
+    logger.info("Placing order " + order);
     return true;
   }
 
-  public Long getAcctNbr()
+  public long getAcctNbr()
   {
     return acctNbr;
   }
 
-  public void setAcctNbr(Long acctNbr)
+  public void setAcctNbr(long acctNbr)
   {
     this.acctNbr = acctNbr;
   }
@@ -251,20 +260,21 @@ public class Account
     return false;
   }
 
-  public double getTotal()
+  public double getTotal(double price)
   {
     double total = cashAmount;
     for (StockHolding sh : holdings)
     {
-      total += sh.getQuantity() * sh.getAvgPrice();
+      total += sh.getQuantity() * price;
     }
     return total;
   }
 
-  public void showHoldings()
+  public void showHoldings(Date date, double price)
   {
     StringBuilder sb = new StringBuilder();
-
+    sb.append("Holdings");
+    
     for (StockHolding sh : holdings)
     {
       sb.append("\r\nSymbol\tQty\tPrice\t\t");
@@ -274,7 +284,9 @@ public class Account
     {
       sb.append(sh.getStock().getSymbol() + "\t" + sh.getQuantity() + "\t" + Util.format(sh.getAvgPrice()) + "\t\t");
     }
-    sb.append("\r\n");
+    if (!holdings.isEmpty()) {
+      sb.append("\r\n");
+    }
     
     sb.append("Cash\t\t");
     sb.append("Total\t\t");
@@ -290,14 +302,19 @@ public class Account
       sb.append("\t");
     }
 
-    double totalAmount = getTotal();
+    double totalAmount = getTotal(price);
     sb.append(Util.format(totalAmount) + "\t");
     if (totalAmount < 10000)
     {
       sb.append("\t");
     }
     
-    double fees = getTransactions().size() * Constants.COMMISSION_FEE;
+    double fees = 0;
+    for (Transaction tx : transactions) {
+      if (Util.roundup(tx.getDealTime()).compareTo(date) == 0) {
+        fees += Constants.COMMISSION_FEE;
+      }
+    }
     if (fees > 0)
     {
       sb.append(Util.format(fees));
@@ -312,7 +329,7 @@ public class Account
     logger.info(sb.toString());
   }
 
-  public void showOrders()
+  public void showAllOrders()
   {
     StringBuilder sb = new StringBuilder();
     sb.append(Order.printHeaders(CurrencyType.USD));
@@ -325,7 +342,22 @@ public class Account
     logger.info(sb.toString());
   }
 
-  public void showTransactions()
+  public void showOrders(Date date)
+  {
+    StringBuilder sb = new StringBuilder();
+    sb.append(Order.printHeaders(CurrencyType.USD));
+
+    // print out transaction details
+    for (Order order : orders)
+    {
+      if (Util.roundup(order.getOrderTime()).compareTo(date) == 0) {
+        sb.append(order + "\r\n");
+      }
+    }
+    logger.info(sb.toString());
+  }
+
+  public void showAllTransactions()
   {
     StringBuilder sb = new StringBuilder();
     sb.append(Transaction.printHeaders(CurrencyType.USD));
@@ -338,4 +370,47 @@ public class Account
     logger.info(sb.toString());
   }
 
+  
+  public void showTransactions(Date date)
+  {
+    StringBuilder sb = new StringBuilder();
+    sb.append(Transaction.printHeaders(CurrencyType.USD));
+
+    // print out transaction details
+    for (Transaction tx : transactions)
+    {
+        if (Util.roundup(tx.getDealTime()).compareTo(date) == 0) {
+        sb.append(tx + "\r\n");
+      }
+    }
+    logger.info(sb.toString());
+  }
+
+  
+  public void showProfits()
+  {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Daily Profit\r\n");
+    // print out transaction details
+    double total = 0;
+    for (Entry<Date, Double> entry : dailyProfits.entrySet())
+    {
+      sb.append(Util.format(entry.getKey()) + " | " + Util.format(entry.getValue()) + "\r\n");
+      total += Util.trim(entry.getValue().doubleValue());
+    }
+    sb.append("Total Profit: " + Util.format(total));
+    logger.info(sb.toString());
+  }
+
+  public void updateProfit(Date date, double price) {
+    double totalAmount = getTotal(price);
+    double fees = 0;
+    for (Transaction tx : transactions) {
+      if (Util.roundup(tx.getDealTime()).compareTo(date) == 0) {
+        fees += Constants.COMMISSION_FEE;
+      }
+    }
+    double profit = totalAmount - initialAmount - fees;
+    dailyProfits.put(date, Double.valueOf(profit));
+  }
 }

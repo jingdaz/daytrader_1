@@ -17,7 +17,7 @@ import com.broadviewsoft.daytrader.domain.StockStatus;
  */
 public abstract class TradeStrategy implements ITradeStrategy {
 	protected Period period = null;
-	protected AbstractDataFeeder dataFeeder = null;
+	protected IDataFeeder dataFeeder = null;
 
 	public Period getPeriod() {
 		return period;
