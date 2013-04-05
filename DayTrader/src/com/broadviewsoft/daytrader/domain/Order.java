@@ -118,16 +118,18 @@ public class Order {
 		order.setQuantity(qty);
 		if (limitPrice > 0) {
 			order.setLimitPrice(limitPrice);
+			order.setCostPrice(limitPrice);
 		}
 		if (stopPrice > 0) {
 			order.setStopPrice(stopPrice);
+			order.setCostPrice(stopPrice);
 		}
 		return order;
 	}
 
 	public static String printHeaders(CurrencyType curType) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("\r\nOrder Details\r\n");
+		sb.append("Order Details\r\n");
 		sb.append("Time\t\t");
 		sb.append("Order Type\t");
 		sb.append("Symbol\t");

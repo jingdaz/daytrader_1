@@ -1,11 +1,9 @@
 package com.broadviewsoft.daytrader.tester;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,10 +12,9 @@ import com.broadviewsoft.daytrader.domain.Account;
 import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.PriceType;
-import com.broadviewsoft.daytrader.service.AbstractDataFeeder;
 import com.broadviewsoft.daytrader.service.BrokerService;
 import com.broadviewsoft.daytrader.service.DataFeederFactory;
-import com.broadviewsoft.daytrader.service.TradePlatform;
+import com.broadviewsoft.daytrader.service.IDataFeeder;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
 import com.broadviewsoft.daytrader.service.impl.CciStrategy;
 
@@ -39,7 +36,7 @@ public class DayTraderPredictor {
 	private BrokerService broker = null;
 	private Account account = null;
 	private ITradeStrategy strategy = null;
-	private AbstractDataFeeder dataFeeder = DataFeederFactory.newInstance();
+	private IDataFeeder dataFeeder = DataFeederFactory.newInstance();
 
 	public DayTraderPredictor() {
 		broker = new BrokerService();
@@ -88,7 +85,7 @@ public class DayTraderPredictor {
 	    double curOpen = dataFeeder.getPriceByIndex(symbol, Period.DAY, todayItemIndex, PriceType.Open);
 	    double preClose = dataFeeder.getPriceByIndex(symbol, Period.DAY, yesterdayItemIndex, PriceType.Close);
 		
-		account.init(preClose, today);
+		account.init(preClose);
 
 		double[] curOpens = new double[8];
 		for (int i = 0; i < Constants.PREDICT_OPEN_FACTORS.length; i++) {

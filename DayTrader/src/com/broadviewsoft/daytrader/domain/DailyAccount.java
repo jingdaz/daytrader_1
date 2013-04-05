@@ -1,7 +1,7 @@
 package com.broadviewsoft.daytrader.domain;
 
 import java.util.Date;
-
+@Deprecated
 public class DailyAccount {
 	private Date dateTime;
 	private Account account;

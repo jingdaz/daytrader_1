@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -121,6 +120,16 @@ public class Util {
     int min = cal.get(Calendar.MINUTE);
     return (60 * hour + min);
 	}
+	
+	public static Date roundup(Date date) {
+    Calendar cal = new GregorianCalendar();
+    cal.setTime(date);
+    int year = cal.get(Calendar.YEAR);
+    int month = cal.get(Calendar.MONTH);
+    int day = cal.get(Calendar.DAY_OF_MONTH);
+    Calendar result = new GregorianCalendar(year, month, day);
+    return result.getTime();
+  }
 	
 	public static void main(String[] args) {
 		String filename = "D:/projects/DayTrader/resources/UVXY_MIN.csv";

@@ -7,18 +7,13 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.broadviewsoft.daytrader.domain.Constants;
-import com.broadviewsoft.daytrader.domain.DataException;
-import com.broadviewsoft.daytrader.domain.DataFileType;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.PriceType;
-import com.broadviewsoft.daytrader.domain.Stock;
 import com.broadviewsoft.daytrader.domain.StockData;
 import com.broadviewsoft.daytrader.domain.StockItem;
-import com.broadviewsoft.daytrader.service.impl.HistoryDataFileService;
 import com.broadviewsoft.daytrader.util.Util;
 
-public abstract class AbstractDataFeeder {
+public abstract class AbstractDataFeeder implements IDataFeeder {
 	private static Log logger = LogFactory.getLog(AbstractDataFeeder.class);
 
 	protected boolean prodMode = false;
@@ -41,7 +36,7 @@ public abstract class AbstractDataFeeder {
   }
 
 
-	protected List<StockItem> getHistoryData(String symbol, Period period,
+	public List<StockItem> getHistoryData(String symbol, Period period,
 			Date cutTime) {
 		List<StockItem> result = new ArrayList<StockItem>();
 		for (StockData sd : allData) {
@@ -61,7 +56,7 @@ public abstract class AbstractDataFeeder {
 		return result;
 	}
 
-	protected StockItem getItemByIndex(String symbol, Period period, int index) {
+	public StockItem getItemByIndex(String symbol, Period period, int index) {
     List<StockItem> targetItems = null;
     StockItem targetItem = null;
     

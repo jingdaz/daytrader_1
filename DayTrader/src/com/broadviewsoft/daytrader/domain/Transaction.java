@@ -52,7 +52,7 @@ public class Transaction extends Order {
 
 	public static String printHeaders(CurrencyType curType) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("\r\nTransaction Summary\r\n");
+		sb.append("Transaction Summary\r\n");
 		sb.append("Time\t\t");
 		sb.append("Tx Type\t\t");
 		sb.append("Symbol\t");

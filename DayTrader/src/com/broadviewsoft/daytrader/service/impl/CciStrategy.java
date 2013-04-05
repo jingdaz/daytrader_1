@@ -129,7 +129,7 @@ public class CciStrategy extends TradeStrategy {
 		    
 		    // tight up stop price to lock profit
 		    if ( curFactor > Constants.STOP_ORDER_LOCKWIN_FACTOR) {
-		      double newStop = order.getStopPrice()*(1.0+(curFactor-Constants.STOP_ORDER_TRAILING_FACTOR)/2);
+		      double newStop = Util.trim(order.getStopPrice()*(1.0+(curFactor-Constants.STOP_ORDER_TRAILING_FACTOR)/2));
 		      if (newStop > order.getStopPrice()) {
 		        order.setStopPrice(newStop);
 		        logger.info("[" + Util.format(stockStatus.getTimestamp()) + "] Raising Stop price to lock profit on " + order);
@@ -138,7 +138,7 @@ public class CciStrategy extends TradeStrategy {
 		    
 		    // set trailing stop price
 		    else if ( curFactor > Constants.STOP_ORDER_TRAILING_FACTOR) {
-		      double newStop = order.getStopPrice()*(1.0+curFactor-Constants.STOP_ORDER_TRAILING_FACTOR);
+		      double newStop = Util.trim(order.getStopPrice()*(1.0+curFactor-Constants.STOP_ORDER_TRAILING_FACTOR));
 		      if (newStop > order.getStopPrice()) {
 		        order.setStopPrice(newStop);
 	          logger.info("[" + Util.format(stockStatus.getTimestamp()) + "] Moved Trailing Stop price up on " + order);
@@ -158,9 +158,9 @@ public class CciStrategy extends TradeStrategy {
 				// Open high, set lockwin order min(5% profit, 2%+ open)
 				// or Stop at -2% of highest so far
 				if (result > 0) {
-					double lockWinLimit = Math.min(
+					double lockWinLimit = Util.trim(Math.min(
 							Constants.LOCKWIN_PRE_CLOSE_FACTOR * preClose,
-							Constants.LOCKWIN_CUR_OPEN_FACTOR * curOpen);
+							Constants.LOCKWIN_CUR_OPEN_FACTOR * curOpen));
 					Order newOrder = Order.createOrder(timestamp,
 							TransactionType.SELL, OrderType.LIMIT,
 							sh.getQuantity(), lockWinLimit, 0);
@@ -168,8 +168,8 @@ public class CciStrategy extends TradeStrategy {
 				}
 				// Open low, set stop order
 				else if (result < 0) {
-					double stopLoss = Constants.STOPLOSS_CUR_OPEN_FACTOR
-							* curOpen;
+					double stopLoss = Util.trim(Constants.STOPLOSS_CUR_OPEN_FACTOR
+							* curOpen);
 					Order newOrder = Order.createOrder(timestamp,
 							TransactionType.SELL, OrderType.STOP,
 							sh.getQuantity(), 0, stopLoss);
