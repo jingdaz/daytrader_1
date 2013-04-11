@@ -157,6 +157,8 @@ public class Constants {
   public static final double STOP_ORDER_TRAILING_FACTOR = 1.02;
   public static final double STOP_ORDER_LOCKWIN_FACTOR = 1.03;
 
+  public static final boolean HUMAN_STRATEGY_ENABLED = true;
+
 	public static List<Date> MARKET_CLOSE_DAYS = new ArrayList<Date>();
 	public static List<Date> MARKET_CLOSE_EARLY_DAYS = new ArrayList<Date>();
 

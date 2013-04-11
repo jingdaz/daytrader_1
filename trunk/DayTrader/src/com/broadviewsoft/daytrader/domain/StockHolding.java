@@ -1,5 +1,7 @@
 package com.broadviewsoft.daytrader.domain;
 
+import com.broadviewsoft.daytrader.util.Util;
+
 public class StockHolding {
 	private Stock stock;
 	private int quantity;
@@ -33,4 +35,11 @@ public class StockHolding {
 		this.avgPrice = avgPrice;
 	}
 
+	public String toString() {
+	  StringBuilder sb = new StringBuilder();
+    sb.append(stock.getSymbol() + "\t");
+    sb.append(Util.format(quantity) + "\t");
+    sb.append("@" + Util.format(avgPrice) + "\r\n");
+    return sb.toString();
+	}
 }

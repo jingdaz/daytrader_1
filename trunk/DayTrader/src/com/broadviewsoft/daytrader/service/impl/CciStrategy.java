@@ -176,6 +176,7 @@ public class CciStrategy extends TradeStrategy {
 					account.placeOrder(timestamp, newOrder);
 				}
 				// Open flat, wait for chances
+				
 			}
 		}
 

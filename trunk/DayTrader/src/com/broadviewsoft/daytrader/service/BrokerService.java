@@ -93,7 +93,8 @@ public class BrokerService
     double deal = 0;
     boolean conditionMet = false;
     boolean fundSufficient = false;
-
+    Transaction tx = null;
+    
     switch (order.getTxType())
     {
       case BUY:
@@ -124,17 +125,23 @@ public class BrokerService
             break;
 
           case STOPLIMIT:
-            logger.info("Executed Stop-Limit Buy order on " + Util.format(clock));
+            // XXX assume time sequence does not matter for scenario price rises abruptly
+            if (high >= order.getStopPrice() && low <= order.getLimitPrice())
+            {
+              conditionMet = true;
+              deal = (order.getStopPrice() <= typ ? typ : order.getLimitPrice());
+              fundSufficient = account.getCashAmount() > order.getQuantity() * deal;
+            }
             break;
         }
         if (conditionMet)
         {
           if (fundSufficient)
           {
-            logger.info("Executed " + order.getOrderType() + " BUY order on " + Util.format(clock));
+            logger.info("Executed " + order.getOrderType() + " BUY order @" + deal + " on " + Util.format(clock));
             order.setStatus(OrderStatus.EXECUTED);
             order.setCostPrice(deal);
-            Transaction tx = new Transaction(order);
+            tx = new Transaction(order);
             tx.setDealTime(clock);
             tx.setDealPrice(deal);
             tx.setCommission(Constants.COMMISSION_FEE);
@@ -149,7 +156,7 @@ public class BrokerService
         }
 
         // always set stop order for protection
-        if (conditionMet && fundSufficient)
+        if (!Constants.HUMAN_STRATEGY_ENABLED && conditionMet && fundSufficient)
         {
           double stopPrice = Constants.PROTECTION_STOP_PRICE * deal;
           // double limitPrice = Constants.PROTECTION_LIMIT_PRICE *
@@ -170,53 +177,45 @@ public class BrokerService
           case LIMIT:
             if (high >= order.getLimitPrice())
             {
+              conditionMet = true;
               deal = (order.getLimitPrice() <= low ? typ : order.getLimitPrice());
-              logger.info("Executed Limit Sell order on " + Util.format(clock));
-              order.setStatus(OrderStatus.EXECUTED);
-              order.setCostPrice(deal);
-              Transaction tx2 = new Transaction(order);
-              tx2.setDealTime(clock);
-              tx2.setCommission(Constants.COMMISSION_FEE);
-              account.getTransactions().add(tx2);
-              // update holdings
-              account.updateHoldings(tx2);
+              
             }
             break;
 
           case MARKET:
+            conditionMet = true;
             deal = typ;
-            logger.info("\tExecuted Market Sell order on " + Util.format(clock));
-            order.setStatus(OrderStatus.EXECUTED);
-            order.setCostPrice(deal);
-            Transaction tx = new Transaction(order);
-            tx.setDealTime(clock);
-            tx.setCommission(Constants.COMMISSION_FEE);
-            account.getTransactions().add(tx);
-            // update holdings
-            account.updateHoldings(tx);
             break;
 
           case STOP:
             if (low <= order.getStopPrice())
             {
+              conditionMet = true;
               deal = (order.getStopPrice() >= high ? typ : order.getStopPrice());
-              logger.info("Executed Stop Sell order on " + Util.format(clock));
-              order.setStatus(OrderStatus.EXECUTED);
-              order.setCostPrice(deal);
-              Transaction tx2 = new Transaction(order);
-              tx2.setDealTime(clock);
-              tx2.setCommission(Constants.COMMISSION_FEE);
-              account.getTransactions().add(tx2);
-              // update holdings
-              account.updateHoldings(tx2);
             }
             break;
 
+          // XXX assume time sequence does not matter for scenario price drops abruptly
           case STOPLIMIT:
-            logger.info("Executed Stop-Limit Sell order on " + Util.format(clock));
+            if (low <= order.getStopPrice() && high >= order.getLimitPrice())
+            {
+              conditionMet = true;
+              deal = (order.getStopPrice() >= typ ? typ : order.getLimitPrice());
+            }
             break;
         }
 
+        if (conditionMet) {
+          logger.info("Executed " + order.getOrderType() + " SELL order @" + deal + " on " + Util.format(clock));
+          order.setStatus(OrderStatus.EXECUTED);
+          tx = new Transaction(order);
+          tx.setDealTime(clock);
+          tx.setCommission(Constants.COMMISSION_FEE);
+          account.getTransactions().add(tx);
+          // update holdings
+          account.updateHoldings(tx);
+        }
         break;
     }
     return result;

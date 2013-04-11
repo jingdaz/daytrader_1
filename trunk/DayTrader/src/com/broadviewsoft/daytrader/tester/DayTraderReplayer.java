@@ -13,6 +13,7 @@ import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.service.TradePlatform;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
 import com.broadviewsoft.daytrader.service.impl.CciStrategy;
+import com.broadviewsoft.daytrader.service.impl.HumanStrategy;
 import com.broadviewsoft.daytrader.service.impl.RsiStrategy;
 
 /**
@@ -27,13 +28,13 @@ import com.broadviewsoft.daytrader.service.impl.RsiStrategy;
  * 
  * @author Jason Zhang
  */
-public class DayTraderSimulator {
-	private static Log logger = LogFactory.getLog(DayTraderSimulator.class);
+public class DayTraderReplayer {
+	private static Log logger = LogFactory.getLog(DayTraderReplayer.class);
 
 	private TradePlatform tradePlatform = null;
 	private List<ITradeStrategy> strategies = null;
 	
-	public DayTraderSimulator() {
+	public DayTraderReplayer() {
 		tradePlatform = new TradePlatform();
 		strategies = new ArrayList<ITradeStrategy>();
 	}
@@ -58,8 +59,8 @@ public class DayTraderSimulator {
 	}
 
 	public static void main(String[] args) throws ParseException {
-		DayTraderSimulator simulator = new DayTraderSimulator();
-		simulator.addStrategies(new CciStrategy());
+		DayTraderReplayer rewinder = new DayTraderReplayer();
+		rewinder.addStrategies(new HumanStrategy());
 		Account account = new Account();
 //		simulator.addStrategies(new RsiStrategy());
 		String[] symbols = Constants.INIT_STOCK_SYMBOLS;
@@ -68,7 +69,7 @@ public class DayTraderSimulator {
 		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("04/08/2013");
 
 		for (String symbol : symbols) {
-		  simulator.simulate(account, symbol, startDate, endDate);
+		  rewinder.simulate(account, symbol, startDate, endDate);
 		}
 	}
 }

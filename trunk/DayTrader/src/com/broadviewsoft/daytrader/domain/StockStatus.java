@@ -234,4 +234,18 @@ public class StockStatus {
     return chartItems.get(capacity-1).getRsi() > chartItems.get(capacity-2).getRsi();
   }
 
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(Util.format(timestamp) + "\r\n");
+    sb.append("Yesterday item " + ytaItem + "\r\n");
+    sb.append("PRE High  item " + preHigh + "\r\n");
+    sb.append("PRE Low   item " + preLow + "\r\n");
+    sb.append("Current   item " + curItem + "\r\n");
+    
+    for (StockItem si : chartItems) {
+      sb.append(si + "\r\n");
+      
+    }
+    return sb.toString();
+  }
 }
