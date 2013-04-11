@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.domain.Account;
 import com.broadviewsoft.daytrader.domain.Constants;
-import com.broadviewsoft.daytrader.domain.DailyAccount;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.PriceType;
 import com.broadviewsoft.daytrader.domain.StockStatus;

@@ -16,13 +16,14 @@ import com.broadviewsoft.daytrader.service.BrokerService;
 import com.broadviewsoft.daytrader.service.DataFeederFactory;
 import com.broadviewsoft.daytrader.service.IDataFeeder;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
+import com.broadviewsoft.daytrader.service.TradePlatform;
 import com.broadviewsoft.daytrader.service.impl.CciStrategy;
 
 /**
  * 
- * Test driver to simulate Day Trade using this system
+ * Day Trader predictor to recommend handling of over-night holdings
  * <P>
- * Test driver to run backtest using this system to find an optimal strategy
+ * 
  * </P>
  * <P>
  * <B>Creation date:</B> Mar 8, 2013 3:43:24 PM
@@ -33,26 +34,17 @@ import com.broadviewsoft.daytrader.service.impl.CciStrategy;
 public class DayTraderPredictor {
 	private static Log logger = LogFactory.getLog(DayTraderPredictor.class);
 
-	private BrokerService broker = null;
+	private TradePlatform tradePlatform = null;
 	private Account account = null;
 	private ITradeStrategy strategy = null;
 	private IDataFeeder dataFeeder = DataFeederFactory.newInstance();
 
 	public DayTraderPredictor() {
-		broker = new BrokerService();
-		account = new Account();
+	  tradePlatform = new TradePlatform();
+	  account = new Account();
 		strategy = new CciStrategy();
-		broker.registerAccount(account);
 	}
 	
-	public BrokerService getBroker() {
-		return broker;
-	}
-
-	public void setBroker(BrokerService broker) {
-		this.broker = broker;
-	}
-
 	public Account getAccount() {
 		return account;
 	}
@@ -69,37 +61,31 @@ public class DayTraderPredictor {
 		this.strategy = strategy;
 	}
 
-	public void predict(String symbol) {
-		Calendar cal = Calendar.getInstance();
-		Calendar calToday = new GregorianCalendar(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
-		Date today = calToday.getTime();
-		
-	    int todayItemIndex = dataFeeder.getCurItemIndex(symbol, today, Period.DAY);
-	    int yesterdayItemIndex = todayItemIndex - 1;
-	    
-	    if (todayItemIndex < 0 || yesterdayItemIndex < 0) {
-	    	logger.error("No open/close price found on " + today);
-	    	return;
-	    }
-	    
-	    double curOpen = dataFeeder.getPriceByIndex(symbol, Period.DAY, todayItemIndex, PriceType.Open);
-	    double preClose = dataFeeder.getPriceByIndex(symbol, Period.DAY, yesterdayItemIndex, PriceType.Close);
-		
-		account.init(preClose);
+	public void predict(String symbol, Date yesterday) {
+	  int ytdItemIndex = dataFeeder.getCurItemIndex(symbol, yesterday, Period.DAY);
+    if (ytdItemIndex < 0) {
+      logger.error("No open/close price found on " + yesterday);
+      return;
+    }
+	  
+	  double preClose = dataFeeder.getPriceByIndex(symbol, Period.DAY, ytdItemIndex, PriceType.Close);
+    
+		double[] curOpens = new double[Constants.PREDICT_OPEN_FACTORS.length];
+    for (int i = 0; i < Constants.PREDICT_OPEN_FACTORS.length; i++) {
+      curOpens[i] = Constants.PREDICT_OPEN_FACTORS[i];
+    }
 
-		double[] curOpens = new double[8];
-		for (int i = 0; i < Constants.PREDICT_OPEN_FACTORS.length; i++) {
-			curOpens[i] = Constants.PREDICT_OPEN_FACTORS[i];
-		}
+    
 	}
 
 	public static void main(String[] args) throws ParseException {
 		DayTraderPredictor predictor = new DayTraderPredictor();
-
+		
+		Date yesterday = Constants.TRADE_DATE_FORMATTER.parse("04/08/2013");
 		String[] symbols = Constants.INIT_STOCK_SYMBOLS;
 
 		for (String symbol : symbols) {
-			predictor.predict(symbol);
+			predictor.predict(symbol, yesterday);
 		}
 	}
 }
