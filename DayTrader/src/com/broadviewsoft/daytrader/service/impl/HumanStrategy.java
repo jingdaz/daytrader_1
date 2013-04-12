@@ -1,24 +1,34 @@
 package com.broadviewsoft.daytrader.service.impl;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Date;
-import java.util.Scanner;
+import java.util.List;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.domain.Account;
+import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.Order;
+import com.broadviewsoft.daytrader.domain.OrderStatus;
 import com.broadviewsoft.daytrader.domain.OrderType;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.StockHolding;
+import com.broadviewsoft.daytrader.domain.StockItem;
 import com.broadviewsoft.daytrader.domain.StockStatus;
 import com.broadviewsoft.daytrader.domain.TransactionType;
 import com.broadviewsoft.daytrader.service.DataFeederFactory;
+import com.broadviewsoft.daytrader.service.StockChart;
 import com.broadviewsoft.daytrader.service.TradeStrategy;
 import com.broadviewsoft.daytrader.util.Util;
 
 public class HumanStrategy extends TradeStrategy {
 	private static Log logger = LogFactory.getLog(HumanStrategy.class);
+	
 
 	public HumanStrategy() {
 		period = Period.MIN5;
@@ -26,15 +36,19 @@ public class HumanStrategy extends TradeStrategy {
 	}
 
 	public void execute(StockStatus stockStatus, Account account) {
-		logger.info("Executing on " + Util.format(stockStatus.getTimestamp()));
-		StockHolding holding = null;
+		StockHolding targetHolding = null;
 		for (StockHolding sh : account.getHoldings()) {
-		  if (stockStatus.getStock().eqauls(sh.getStock())) {
-		    System.out.println("Holding " + sh);
-		  }
+			if (sh.getStock().eqauls(stockStatus.getStock())) {
+				targetHolding = sh;
+				break;
+			}
 		}
 		
+		logger.info("Executing on " + Util.format(stockStatus.getTimestamp()));
+		
 		System.out.println(stockStatus);
+		
+		final List<StockItem> chartData = stockStatus.getHistItems();
 		
 		if (stockStatus.isWeakest()) {
       logger.info("Weakest market; cautious to jump in!");
@@ -68,7 +82,7 @@ public class HumanStrategy extends TradeStrategy {
 			logger.info("Price picks up from bottom divergance!");
 		}
 
-    Scanner scanIn = new Scanner(System.in);
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		TransactionType txType = null; 
 		OrderType orType = null;
 		double stopPrice = -1;
@@ -79,8 +93,8 @@ public class HumanStrategy extends TradeStrategy {
 
 		do
     {
-      System.out.println("Buy or Sell or Pass?");
-      input = scanIn.next().trim();
+      System.out.println("Buy, Sell, Chart or Pass?");
+      input = getInput(reader);
       if (input == null || "".equals(input) || input.startsWith("P") || input.startsWith("p"))
       {
         return;
@@ -93,6 +107,14 @@ public class HumanStrategy extends TradeStrategy {
       {
         txType = TransactionType.SELL;
       }
+      else if (input.startsWith("C") || input.startsWith("c"))
+      {
+        SwingUtilities.invokeLater(new Runnable() {
+          public void run() {
+            StockChart.createAndShowGui(chartData);
+          }
+       });
+      }
     } while (txType == null);
 		
 		// reset input
@@ -100,10 +122,11 @@ public class HumanStrategy extends TradeStrategy {
 		do
     {
 		  System.out.println("Market, Stop or Limit?");
-      input = scanIn.next().trim();
+		  input = getInput(reader);
       if (input == null || "".equals(input))
       {
-        System.out.println("Invaid order type!");
+        orType = OrderType.MARKET;
+        System.out.println("Invaid order type! Use default Market instead.");
       }
       if (input.startsWith("M") || input.startsWith("m"))
       {
@@ -127,7 +150,7 @@ public class HumanStrategy extends TradeStrategy {
     do
     {
       System.out.println("Quantity(1000)?");
-      input = scanIn.next().trim();
+      input = getInput(reader);
       if (input == null || "".equals(input)) {
         qty = 1000;
       } else {
@@ -135,7 +158,16 @@ public class HumanStrategy extends TradeStrategy {
       }
     } while (qty == -1);
 		
-    scanIn.close();
+    try
+    { 
+      if (reader != null) {
+        reader.close();
+      }
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
     
     switch (txType) {
       case SELL:
@@ -168,6 +200,21 @@ public class HumanStrategy extends TradeStrategy {
 		}
 	}
 
+	private String getInput(BufferedReader reader) {
+	  String input = "!Err";
+	  
+	  try
+    {
+      input = reader.readLine().trim();
+    }
+    catch (IOException e)
+    {
+      logger.error("Error occurred when reading from user input.");
+    }
+    
+    return input;
+	}
+	
 	public void handleOverNight(Account account, String symbol, Date timestamp,
 			double preClose, double curOpen) {
 	}

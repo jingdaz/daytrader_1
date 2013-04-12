@@ -27,8 +27,8 @@ import com.broadviewsoft.daytrader.domain.StockItem;
 import com.broadviewsoft.daytrader.service.IHistoryDataService;
 import com.broadviewsoft.daytrader.util.Util;
 
-public class HistoryDataFileService implements IHistoryDataService {
-	private static Log logger = LogFactory.getLog(HistoryDataFileService.class);
+public class CsvDataFileService implements IHistoryDataService {
+	private static Log logger = LogFactory.getLog(CsvDataFileService.class);
 
 	public List<StockItem> loadData(String symbol, Period period,
 			DataFileType type) throws DataException {
@@ -106,7 +106,7 @@ public class HistoryDataFileService implements IHistoryDataService {
 	}
 
 	public static void main(String[] args) throws DataException {
-		HistoryDataFileService service = new HistoryDataFileService();
+		CsvDataFileService service = new CsvDataFileService();
 		// print out stock headers
 		CurrencyType curType = CurrencyType.USD;
 		String symbol = "UVXY";

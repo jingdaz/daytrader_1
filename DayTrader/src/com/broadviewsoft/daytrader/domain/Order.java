@@ -12,6 +12,7 @@ public class Order {
 	protected OrderStatus status;
 	protected int quantity;
 
+	// as deal price in transaction 
 	 protected double costPrice;
 	protected double limitPrice;
 	protected double stopPrice;

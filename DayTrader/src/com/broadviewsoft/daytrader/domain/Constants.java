@@ -26,6 +26,8 @@ public class Constants {
 	public final static String STOCK_DATA_FILE_GF_PREFIX = "GF_";
 	public final static String STOCK_DATA_FILE_BVS_PREFIX = "";
 
+	public final static String STOCK_DATA_FILE_HEADER = "Timestamp,Open,High,Low,Close";
+	
 	public final static int MINUTE_IN_SECONDS = 60;
 	public final static long MINUTE_IN_MILLI_SECONDS = 60 * 1000;
 	public final static long HOUR_IN_MILLI_SECONDS = 60 * 60 * 1000;
@@ -46,6 +48,16 @@ public class Constants {
   /* RSI overbought */
   public static final double RSI_OVERBOUGHT_LIMIT = 70;
 	
+  public static final int CHART_CCI_SHOW_HISTORY = 48;
+  
+  /* RSI Range */
+  public static final double RSI_MAX_LIMIT = 100;
+  public static final double RSI_MIN_LIMIT = 0;
+  
+  /* CCI Range */
+  public static final double CCI_MAX_LIMIT = 300;
+  public static final double CCI_MIN_LIMIT = -300;
+  
 	public final static double CCI_TOP_DIVERGENCE = 100;
 	public final static double CCI_BOTTOM_DIVERGENCE = -100;
 
@@ -67,7 +79,7 @@ public class Constants {
 	public final static double CCI_CROSS_DOWN_DIFF_FACTOR_LIMIT = 1.10;
 	
 	/* Super low open */
-	 public static final int CCI_SUPER_OPEN_START_TIME = 570;
+	 public static final int MARKET_OPEN_TIME_IN_MINS = 570;
 	 public static final int CCI_SUPER_OPEN_END_TIME = 575;
 	 public static final int CCI_SUPER_OPEN_LIMIT_TIME = 630;
 	 public static final double CCI_SUPER_LOW_LIMIT = -270;
@@ -146,7 +158,7 @@ public class Constants {
 	public final static String HISTORY_DATA_FILE_PATH = "D:/projects/DayTrader/resources/data/";
 	// sample link -
 	// http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct&i=60&q=UVXY
-	public final static String HISTORY_DATA_GOOGLE_SITE = "http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct";
+	public final static String HISTORY_DATA_GOOGLE_SITE = "http://www.google.com/finance/getprices?p=2d&f=d,o,h,l,c,v&df=cpct";
 
 	public static final double[] PREDICT_OPEN_FACTORS = {0.10, 0.05, 0.02, 0, -0.02, -0.05, -0.10};
 

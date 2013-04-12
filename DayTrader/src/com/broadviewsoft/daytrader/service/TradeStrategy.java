@@ -39,6 +39,8 @@ public abstract class TradeStrategy implements ITradeStrategy {
 			Period period, Date date, int ytaItemIndex) {
 		StockStatus curStatus = new StockStatus(symbol, date);
 		List<StockItem> data = dataFeeder.getHistoryData(symbol, period, date);
+		List<StockItem> histData = data.subList(data.size()-Constants.CHART_CCI_SHOW_HISTORY, data.size());
+
 		StockItem ytaItem = dataFeeder.getYesdayItem(symbol, ytaItemIndex);
 		StockItem preHigh = findPreHigh(data);
 		StockItem preLow = findPreLow(data);
@@ -49,6 +51,7 @@ public abstract class TradeStrategy implements ITradeStrategy {
 		curStatus.setPreLow(preLow);
 		curStatus.setCurItem(curItem);
 		curStatus.setChartItems(new LinkedList<StockItem>(data));
+		curStatus.setHistItems(new LinkedList<StockItem>(histData));
 
 		return curStatus;
 	}
