@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.DataFileType;
 import com.broadviewsoft.daytrader.domain.Period;
+import com.broadviewsoft.daytrader.domain.StockItem;
 
 public class Util {
 	private static Log logger = LogFactory.getLog(Util.class);
@@ -113,7 +114,7 @@ public class Util {
 		return sb.toString();
 	}
 
-	public static int marketOpenMins(Date date) {
+	public static int getTimeInMins(Date date) {
     Calendar cal = new GregorianCalendar();
     cal.setTime(date);
     int hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -131,9 +132,34 @@ public class Util {
     return result.getTime();
   }
 	
+	/**
+	 * Combine two items into one to handle 9:30am redundant item
+	 * 
+	 * @param preItem 9:30am item
+	 * @param item 9:31am or 9:35am item
+	 * @return 
+	 */
+  public static StockItem combine(StockItem preItem, StockItem item)
+  {
+    if (preItem==null || item==null) {
+      return null;
+    }
+    
+    StockItem result = new StockItem();
+    result.setTimestamp(item.getTimestamp());
+    result.setOpen(preItem.getOpen());
+    result.setClose(item.getClose());
+    result.setHigh(Math.max(preItem.getHigh(), item.getHigh()));
+    result.setLow(Math.min(preItem.getLow(), item.getLow()));
+    result.setVolume(preItem.getVolume() + item.getVolume());
+    
+    return result;
+  }
+
 	public static void main(String[] args) {
 		String filename = "D:/projects/DayTrader/resources/UVXY_MIN.csv";
 		String line = getLastLine(filename);
 		System.out.println("last line=" + line);
 	}
+
 }

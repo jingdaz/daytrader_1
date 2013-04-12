@@ -1,13 +1,9 @@
-package com.broadviewsoft.daytrader.service.impl;
+package com.broadviewsoft.daytrader.service;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,53 +19,45 @@ import com.broadviewsoft.daytrader.domain.DataException;
 import com.broadviewsoft.daytrader.domain.DataFileType;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.StockItem;
-import com.broadviewsoft.daytrader.service.CCIService;
 import com.broadviewsoft.daytrader.service.IHistoryDataService;
-import com.broadviewsoft.daytrader.service.RSIService;
 import com.broadviewsoft.daytrader.util.Util;
 
-public class HistoryDataGoogleService implements IHistoryDataService {
-	private static Log logger = LogFactory
-			.getLog(HistoryDataGoogleService.class);
+public abstract class AbstractHistoryDataService implements IHistoryDataService {
+	private static Log logger = LogFactory.getLog(AbstractHistoryDataService.class);
 
+	public abstract BufferedReader getReader(String symbol, Period period) throws DataException;
+	
 	public List<StockItem> loadData(String symbol, Period period, DataFileType type)
 			throws DataException {
 		List<StockItem> result = new ArrayList<StockItem>();
-		StringBuilder loc = new StringBuilder();
-		loc.append(Constants.HISTORY_DATA_GOOGLE_SITE);
-		// https://www.google.com/finance/getprices?i=60&p=1d&f=d,o,h,l,c,v&df=cpct&q
-		// =UVXY
-		int interval = period.minutes() * Constants.MINUTE_IN_SECONDS;
-		loc.append("&i=" + interval);
-		loc.append("&q=" + symbol);
-		logger.info("Requesting Google Finance site " + loc);
-
-		URL googleFinance = null;
+		
 		BufferedReader in = null;
-		URLConnection gfc = null;
 		String inputLine = null;
 		Date timestamp = new Date();
 		StockItem item = null;
-
+		StockItem preItem = null;
+		
 		try {
-			googleFinance = new URL(loc.toString());
-			gfc = googleFinance.openConnection();
-			in = new BufferedReader(new InputStreamReader(gfc.getInputStream()));
+			in = getReader(symbol, period);
 			while ((inputLine = in.readLine()) != null) {
 				logger.info(inputLine);
 				if (inputLine
 						.matches("^a{0,1}(\\d+)(,\\s*\\d*(\\.){0,1}\\d*){5}\\s*$")) {
 					item = parseGFInput(period, timestamp, inputLine);
 					// skip last item which on 4:01PM
-					if (item != null) {
-						result.add(item);
+					if (item != null && Util.getTimeInMins(item.getTimestamp())==Constants.MARKET_OPEN_TIME_IN_MINS) {
+					  preItem = item;
+					}
+					else if (item != null && preItem != null) {
+            result.add(Util.combine(preItem, item));
+            preItem = null;
+					}
+					else if (item != null) {
+					  result.add(item);
 					}
 				}
 			}
 			in.close();
-		} catch (MalformedURLException e) {
-			logger.error("URL error: " + loc);
-			throw new DataException();
 		} catch (IOException e) {
 			logger.error("Error occurred when reading from Google Finance.");
 			throw new DataException();
@@ -91,15 +79,23 @@ public class HistoryDataGoogleService implements IHistoryDataService {
 		try {
 			String filename = Util.getDataPath(symbol, period, type);
 			String lastLine = Util.getLastLine(filename);
-			int idx = lastLine.indexOf(Constants.CSV_SEPARATOR);
 			Date lastDate = null;
 			boolean newData = false;
-			try {
-				lastDate = Constants.STOCK_PRICE_TIMESTAMP_FORMATTER
-						.parse(lastLine.substring(0, idx));
-			} catch (ParseException e) {
-				logger.error("Error found when parsing timestamp: "
-						+ lastLine);
+      
+			if (lastLine != null && lastLine.startsWith(Constants.STOCK_DATA_FILE_HEADER)) {
+			  logger.info("Empty stock data file found; ready to append.");
+			  newData = true;
+			}
+
+			else {
+       try {
+          int idx = lastLine.indexOf(Constants.CSV_SEPARATOR);
+  				lastDate = Constants.STOCK_PRICE_TIMESTAMP_FORMATTER
+  						.parse(lastLine.substring(0, idx));
+  			} catch (ParseException e) {
+  				logger.error("Error found when parsing timestamp: "
+  						+ lastLine);
+  			}
 			}
 			// no data yet
 			if (lastDate == null) {
@@ -131,11 +127,14 @@ public class HistoryDataGoogleService implements IHistoryDataService {
 
 	public static StockItem parseGFInput(Period period, Date timestamp,
 			String line) {
-		StockItem item = new StockItem();
+		StockItem item = null;
 		if (line != null) {
+		  item = new StockItem();
 			String[] tokens = line.split(Constants.CSV_SEPARATOR);
+			// first record with UNIX timestamp
 			if (tokens[0] != null
 					&& tokens[0].startsWith(Constants.UNIX_TIMESTAMP_PREFIX)) {
+			  // UNIX timestamp in seconds
 				String startDay = tokens[0]
 						.substring(Constants.UNIX_TIMESTAMP_PREFIX.length());
 				long startTime = 1000 * Long.parseLong(startDay);
@@ -149,10 +148,12 @@ public class HistoryDataGoogleService implements IHistoryDataService {
 				case MIN:
 					break;
 				}
-				// setup start time for future parse
+				// set up start time for future parse
 				timestamp.setTime(startTime);
 				item.setTimestamp((Date) timestamp.clone());
-			} else {
+			} 
+			// consequent records with time offset from first record
+			else {
 				Calendar cal = new GregorianCalendar();
 				cal.setTimeInMillis(timestamp.getTime() + 1000 * 60
 						* period.minutes() * Long.parseLong(tokens[0]));
@@ -198,27 +199,4 @@ public class HistoryDataGoogleService implements IHistoryDataService {
 		return item;
 	}
 
-	public static void main(String[] args) throws DataException {
-		// String line = "a1361543400,10.1,10.14, 10.1, 10.14,6483";
-		// String line2 = "1,10.09,10.1,10.07,10.1,11039";
-		// StockItem si = parseInput(line);
-		// StockItem si2 = parseInput(line2);
-		HistoryDataGoogleService gfService = new HistoryDataGoogleService();
-		HistoryDataFileService fileService = new HistoryDataFileService();
-		List<StockItem> result = null;
-		String symbol = "UVXY";
-//		Period[] ps = {Period.DAY, Period.WEEK};
-		Period[] ps = Period.values();
-		for (Period p : ps) {
-			logger.info("\r\nworking on " + p.name());
-			gfService.loadData(symbol, p, DataFileType.GF);
-			result = fileService.loadData(symbol, p, DataFileType.GF);
-      RSIService.calculateRsi(Constants.RSI_INTERVAL, result);
-			CCIService.calculateCci(Constants.CCI_INTERVAL, result);
-			gfService.appendToFile(symbol, p, result, DataFileType.BVS);
-		}
-		
-
-
-	}
 }

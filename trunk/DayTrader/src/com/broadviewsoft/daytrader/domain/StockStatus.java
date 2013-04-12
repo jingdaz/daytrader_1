@@ -16,6 +16,7 @@ public class StockStatus {
 	private StockItem preLow = null;
 	private StockItem curItem = null;
 	private LinkedList<StockItem> chartItems = new LinkedList<StockItem>();
+	private LinkedList<StockItem> histItems = new LinkedList<StockItem>();
 
 	public StockStatus() {
 	}
@@ -90,7 +91,22 @@ public class StockStatus {
 		}
 	}
 
-	public void addChartItem(StockItem item) {
+	
+	public LinkedList<StockItem> getHistItems()
+  {
+    return histItems;
+  }
+
+  public void setHistItems(LinkedList<StockItem> histItems)
+  {
+    this.histItems = histItems;
+  }
+
+  public void addHistItem(StockItem item) {
+    histItems.add(item);
+  }
+
+  public void addChartItem(StockItem item) {
 		if (chartItems.size() >= capacity) {
 			chartItems.poll();
 			chartItems.add(item);
@@ -189,22 +205,22 @@ public class StockStatus {
 
 	public boolean isSuperLowOpen() {
     // Within first 5 minutes before 10AM, CCI below -300
-    int lowMins = Util.marketOpenMins(preLow.getTimestamp());
-    int curMins = Util.marketOpenMins(curItem.getTimestamp());
+    int lowMins = Util.getTimeInMins(preLow.getTimestamp());
+    int curMins = Util.getTimeInMins(curItem.getTimestamp());
     return
     preLow.getCci() < Constants.CCI_SUPER_LOW_LIMIT
-    && lowMins >= Constants.CCI_SUPER_OPEN_START_TIME 
+    && lowMins >= Constants.MARKET_OPEN_TIME_IN_MINS 
     && lowMins <= Constants.CCI_SUPER_OPEN_END_TIME
     && curMins <= Constants.CCI_SUPER_OPEN_LIMIT_TIME;
 	}
 
   public boolean isSuperHighOpen() {
     // Within first 5 minutes before 10AM, CCI above 300
-    int highMins = Util.marketOpenMins(preHigh.getTimestamp());
-    int curMins = Util.marketOpenMins(curItem.getTimestamp());
+    int highMins = Util.getTimeInMins(preHigh.getTimestamp());
+    int curMins = Util.getTimeInMins(curItem.getTimestamp());
     return
     preHigh.getCci() > Constants.CCI_SUPER_HIGH_LIMIT
-    && highMins >= Constants.CCI_SUPER_OPEN_START_TIME 
+    && highMins >= Constants.MARKET_OPEN_TIME_IN_MINS 
     && highMins <= Constants.CCI_SUPER_OPEN_END_TIME
     && curMins <= Constants.CCI_SUPER_OPEN_LIMIT_TIME;
   }
@@ -237,14 +253,21 @@ public class StockStatus {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append(Util.format(timestamp) + "\r\n");
+    if (Constants.HUMAN_STRATEGY_ENABLED) {
+      for (StockItem si : histItems) {
+        sb.append(si + "\r\n");
+      }
+    }
     sb.append("Yesterday item " + ytaItem + "\r\n");
     sb.append("PRE High  item " + preHigh + "\r\n");
     sb.append("PRE Low   item " + preLow + "\r\n");
     sb.append("Current   item " + curItem + "\r\n");
     
-    for (StockItem si : chartItems) {
-      sb.append(si + "\r\n");
-      
+    if (!Constants.HUMAN_STRATEGY_ENABLED) {
+      for (StockItem si : chartItems) {
+        sb.append(si + "\r\n");
+        
+      }
     }
     return sb.toString();
   }

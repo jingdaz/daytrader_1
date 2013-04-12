@@ -9,12 +9,12 @@ import com.broadviewsoft.daytrader.domain.DataFileType;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.Stock;
 import com.broadviewsoft.daytrader.domain.StockData;
-import com.broadviewsoft.daytrader.service.impl.HistoryDataFileService;
+import com.broadviewsoft.daytrader.service.impl.CsvDataFileService;
 
 public class MockDataFeeder extends AbstractDataFeeder {
 	private static Log logger = LogFactory.getLog(MockDataFeeder.class);
 
-	private IHistoryDataService service = new HistoryDataFileService();
+	private IHistoryDataService service = new CsvDataFileService();
 
 	public MockDataFeeder() {
 		this(false);

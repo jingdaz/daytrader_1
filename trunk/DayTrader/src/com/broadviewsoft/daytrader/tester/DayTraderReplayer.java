@@ -65,8 +65,8 @@ public class DayTraderReplayer {
 //		simulator.addStrategies(new RsiStrategy());
 		String[] symbols = Constants.INIT_STOCK_SYMBOLS;
 
-		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("04/04/2013");
-		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("04/08/2013");
+		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("03/13/2013");
+		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("03/13/2013");
 
 		for (String symbol : symbols) {
 		  rewinder.simulate(account, symbol, startDate, endDate);

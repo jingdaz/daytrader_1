@@ -151,7 +151,8 @@ public class BrokerService
           }
           else
           {
-            logger.info("Order triggered but no sufficient fund available.");
+            order.setStatus(OrderStatus.REJECTED);
+            logger.info("Order triggered but no sufficient fund available; Rejected!");
           }
         }
 
@@ -159,8 +160,7 @@ public class BrokerService
         if (!Constants.HUMAN_STRATEGY_ENABLED && conditionMet && fundSufficient)
         {
           double stopPrice = Constants.PROTECTION_STOP_PRICE * deal;
-          // double limitPrice = Constants.PROTECTION_LIMIT_PRICE *
-          // curPrice;
+          // double limitPrice = Constants.PROTECTION_LIMIT_PRICE * curPrice;
           result = Order.createOrder(clock, TransactionType.SELL, OrderType.STOP, order.getQuantity(), 0, stopPrice);
         }
         break;
@@ -209,6 +209,7 @@ public class BrokerService
         if (conditionMet) {
           logger.info("Executed " + order.getOrderType() + " SELL order @" + deal + " on " + Util.format(clock));
           order.setStatus(OrderStatus.EXECUTED);
+          order.setCostPrice(deal);
           tx = new Transaction(order);
           tx.setDealTime(clock);
           tx.setCommission(Constants.COMMISSION_FEE);
