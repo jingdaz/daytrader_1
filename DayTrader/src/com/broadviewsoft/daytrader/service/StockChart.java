@@ -8,11 +8,14 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.swing.*;
 
 import com.broadviewsoft.daytrader.domain.Constants;
+import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.StockItem;
 
 public class StockChart extends JPanel {
@@ -178,10 +181,13 @@ public class StockChart extends JPanel {
   return result;
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws ParseException {
+	  Date curTime = Constants.TRADE_DATE_FORMATTER.parse("04/19/2013");
+	  IDataFeeder dataFeeder = DataFeederFactory.newInstance();
+	  final List<StockItem> items = dataFeeder.getHistoryData("UVXY", Period.MIN5, curTime);
      SwingUtilities.invokeLater(new Runnable() {
         public void run() {
-           createAndShowGui(null);
+           createAndShowGui(items);
         }
      });
   }
