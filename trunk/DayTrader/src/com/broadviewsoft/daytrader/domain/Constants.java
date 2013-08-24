@@ -111,10 +111,10 @@ public class Constants {
 	public final static String[] MARKET_HOLIDAYS = { "01/01/2013", "02/18/2013", "03/29/2013" };
 	public final static String[] MARKET_HALF_DAYS = { "12/24/2013" };
 	
-	public final static String[] STOCKS_WITH_DATA = {"UVXY"};
+	public final static String[] STOCKS_WITH_DATA = {"UVXY", "NUGT"};
 	public final static int INIT_CASH_AMOUNT = 20000;
-	public final static String[] INIT_STOCK_SYMBOLS = {"UVXY"};
-	public final static int[] INIT_STOCK_VOLUMES = { 0 };
+	public final static String[] INIT_STOCK_SYMBOLS = {"UVXY", "NUGT"};
+	public final static int[] INIT_STOCK_VOLUMES = { 0, 0};
 
 	public final static double PRICE_HIGHER_FACTOR = 1.01;
 	public final static double PRICE_LOWER_FACTOR = 0.99;
@@ -158,7 +158,7 @@ public class Constants {
 	public final static String HISTORY_DATA_FILE_PATH = "D:/projects/DayTrader/resources/data/";
 	// sample link -
 	// http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct&i=60&q=UVXY
-	public final static String HISTORY_DATA_GOOGLE_SITE = "http://www.google.com/finance/getprices?p=2d&f=d,o,h,l,c,v&df=cpct";
+	public final static String HISTORY_DATA_GOOGLE_SITE = "http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct";
 
 	public static final double[] PREDICT_OPEN_FACTORS = {0.10, 0.05, 0.02, 0, -0.02, -0.05, -0.10};
 
