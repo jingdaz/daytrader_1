@@ -7,7 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.domain.Account;
-import com.broadviewsoft.daytrader.domain.Constants;
+import com.broadviewsoft.daytrader.util.Constants;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.PriceType;
 import com.broadviewsoft.daytrader.service.DataFeederFactory;
@@ -26,7 +26,7 @@ import com.broadviewsoft.daytrader.service.impl.CciStrategy;
  * <B>Creation date:</B> Mar 8, 2013 3:43:24 PM
  * </P>
  * 
- * @author Jason Zhang
+ * @author Jingda Zhang
  */
 public class DayTraderPredictor {
 	private static Log logger = LogFactory.getLog(DayTraderPredictor.class);
