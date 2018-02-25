@@ -1,5 +1,5 @@
 
-- assume first stratey: over night holding, say 500 UVXY
+- assume first strategy: over night holding, say 500 UVXY
 
 - trade with whole holding so far. sell-buy or buy-sell switch
 
@@ -58,3 +58,9 @@ http://www.investopedia.com/articles/forex/08/cci.asp
 10% principle
 drops from highest
 picks up from lowest
+
+
+Chain of Commands
+Test each indicator at one time; find optimal value for each
+Each indicator is controlled by one or multiple rules
+Fund management, trade frequencies are within rules
