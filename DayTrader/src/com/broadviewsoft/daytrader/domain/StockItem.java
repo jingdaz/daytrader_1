@@ -18,7 +18,7 @@ public class StockItem implements Comparable<Object> {
 
 	public StockItem() {
 		stock = new Stock("UVXY");
-		period = Period.MIN5;
+		period = Period.MIN05;
 	}
 
 	public StockItem(String symbol, Period period) {
@@ -26,6 +26,32 @@ public class StockItem implements Comparable<Object> {
 		this.period = period;
 	}
 
+	public StockItem(StockItem item) {
+		this.stock = new Stock(item.getStock().getSymbol());
+		this.timestamp = item.getTimestamp();
+		this.period = item.getPeriod();
+		this.open = item.getOpen();
+		this.high = item.getHigh();
+		this.low = item.getLow();
+		this.close = item.getClose();
+		this.rsi = item.getRsi();
+		this.cci = item.getCci();
+		this.volume = item.getVolume();
+	}
+	
+	public StockItem(String symbol, Date timestamp, Period period, double open, double high, double low, double close, double rsi, double cci, long volume) {
+		this.stock = new Stock(symbol);
+		this.timestamp = timestamp;
+		this.period = period;
+		this.open = open;
+		this.high = high;
+		this.low = low;
+		this.close = close;
+		this.rsi = rsi;
+		this.cci = cci;
+		this.volume = volume;
+	}
+	
 	public Stock getStock() {
 		return stock;
 	}
@@ -129,14 +155,32 @@ public class StockItem implements Comparable<Object> {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(timestamp + "\t");
+		sb.append(Util.format(timestamp) + "\t");
 		sb.append(Util.format(open) + "\t");
 		sb.append(Util.format(high) + "\t");
 		sb.append(Util.format(low) + "\t");
 		sb.append(Util.format(close) + "\t");
 		sb.append(Util.format(rsi) + "\t");
 		sb.append(Util.format(cci) + "\t");
-		sb.append(Util.format(volume) + "\t");
+		if (volume > 0) {
+			sb.append(Util.format(volume) + "\t");
+		}
+		return sb.toString();
+	}
+
+	public String toCsvString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(Util.format(timestamp) + ",");
+		sb.append(Util.format(open) + ",");
+		sb.append(Util.format(high) + ",");
+		sb.append(Util.format(low) + ",");
+		sb.append(Util.format(close) + ",");
+		sb.append(Util.format(rsi) + ",");
+		sb.append(Util.format(cci));
+		if (volume > 0) {
+			sb.append(",");
+			sb.append(Util.format(volume));
+		}
 		return sb.toString();
 	}
 
@@ -165,10 +209,12 @@ public class StockItem implements Comparable<Object> {
 		sb.append(Util.format(low) + Constants.CSV_SEPARATOR);
 		sb.append(Util.format(close) + Constants.CSV_SEPARATOR);
 		if (type == DataFileType.BVS) {
-      sb.append(Util.format(rsi) + Constants.CSV_SEPARATOR);
-			sb.append(Util.format(cci) + Constants.CSV_SEPARATOR);
+			sb.append(Util.format(rsi) + Constants.CSV_SEPARATOR);
+			sb.append(Util.format(cci));
 		}
-		sb.append(Util.format(volume) + "\r\n");
+		if (volume > 0) {
+			sb.append(Constants.CSV_SEPARATOR + Util.format(volume) + "\r\n");
+		}
 		return sb.toString();
   }
 

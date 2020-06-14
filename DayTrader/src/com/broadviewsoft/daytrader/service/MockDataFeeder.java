@@ -23,25 +23,24 @@ public class MockDataFeeder extends AbstractDataFeeder {
 	public MockDataFeeder(boolean prodMode) {
 		this.prodMode = prodMode;
 		if (!initialized) {
-		  init(Constants.STOCKS_WITH_DATA);
-		  initialized = true;
+			init(Constants.STOCKS_WITH_DATA, DataFileType.BVS);
+			initialized = true;
 		}
 	}
 
-	public void init(String[] symbols) {
+	public void init(String[] symbols, DataFileType type) {
 		try {
 			for (String symbol : symbols) {
 				StockData sd = new StockData();
 				sd.setStock(new Stock(symbol));
-				sd.setMins(service.loadData(symbol, Period.MIN,
-						DataFileType.BVS));
-				sd.setMin5s(service.loadData(symbol, Period.MIN5,
-						DataFileType.BVS));
-				sd.setDays(service.loadData(symbol, Period.DAY,
-						DataFileType.BVS));
+				sd.setMins(service.loadData(symbol, Period.MIN01, type));
+				sd.setMin5s(service.loadData(symbol, Period.MIN05, type));
+				sd.setMin15s(service.loadData(symbol, Period.MIN15, type));
+				sd.setHours(service.loadData(symbol, Period.HOUR, type));
+				sd.setDays(service.loadData(symbol, Period.DAY, type));
+				sd.setWeeks(service.loadData(symbol, Period.WEEK, type));
 				allData.add(sd);
-				logger.debug("Finished loading historical data for Stock: "
-						+ symbol);
+				logger.debug("Finished loading historical data for Stock: " + symbol);
 			}
 		} catch (DataException e) {
 			logger.error("Error when loading historical data.", e);

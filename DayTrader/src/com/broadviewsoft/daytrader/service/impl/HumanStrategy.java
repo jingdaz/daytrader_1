@@ -31,7 +31,7 @@ public class HumanStrategy extends TradeStrategy {
 	
 
 	public HumanStrategy() {
-		period = Period.MIN5;
+		period = Period.MIN05;
 		dataFeeder = DataFeederFactory.newInstance();
 	}
 

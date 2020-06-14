@@ -47,6 +47,17 @@ public class Stock implements Cloneable {
 		return symbol.equalsIgnoreCase(s.getSymbol());
 	}
 	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.currencyType);
+		sb.append(" ");
+		sb.append(this.symbol);
+		sb.append(" ");
+		sb.append(this.companyName);
+		
+		return sb.toString();
+	}
+	
 	public static void main(String[] args) throws CloneNotSupportedException {
 		Stock a = new Stock("IBM");
 		Stock b = new Stock("IBM");

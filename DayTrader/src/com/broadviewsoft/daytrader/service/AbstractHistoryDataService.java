@@ -22,11 +22,21 @@ import com.broadviewsoft.daytrader.domain.StockItem;
 import com.broadviewsoft.daytrader.service.IHistoryDataService;
 import com.broadviewsoft.daytrader.util.Util;
 
+/**
+ * Abstraction of services on stock history data
+ * 
+ * @author Jason
+ *
+ */
+		
 public abstract class AbstractHistoryDataService implements IHistoryDataService {
 	private static Log logger = LogFactory.getLog(AbstractHistoryDataService.class);
 
 	public abstract BufferedReader getReader(String symbol, Period period) throws DataException;
 	
+	/**
+	 * Load stock data for specific symbol, period
+	 */
 	public List<StockItem> loadData(String symbol, Period period, DataFileType type)
 			throws DataException {
 		List<StockItem> result = new ArrayList<StockItem>();
@@ -34,8 +44,8 @@ public abstract class AbstractHistoryDataService implements IHistoryDataService 
 		BufferedReader in = null;
 		String inputLine = null;
 		Date timestamp = new Date();
-		StockItem item = null;
-		StockItem preItem = null;
+		StockItem curItem = null;
+		StockItem prevItem = null;
 		
 		try {
 			in = getReader(symbol, period);
@@ -43,17 +53,17 @@ public abstract class AbstractHistoryDataService implements IHistoryDataService 
 				logger.info(inputLine);
 				if (inputLine
 						.matches("^a{0,1}(\\d+)(,\\s*\\d*(\\.){0,1}\\d*){5}\\s*$")) {
-					item = parseGFInput(period, timestamp, inputLine);
+					curItem = parseGFInput(period, timestamp, inputLine);
 					// skip last item which on 4:01PM
-					if (item != null && Util.getTimeInMins(item.getTimestamp())==Constants.MARKET_OPEN_TIME_IN_MINS) {
-					  preItem = item;
+					if (curItem != null && Util.getTimeInMins(curItem.getTimestamp())==Constants.MARKET_OPEN_TIME_IN_MINS) {
+					  prevItem = curItem;
 					}
-					else if (item != null && preItem != null) {
-            result.add(Util.combine(preItem, item));
-            preItem = null;
+					else if (curItem != null && prevItem != null) {
+            result.add(Util.combine(prevItem, curItem));
+            prevItem = null;
 					}
-					else if (item != null) {
-					  result.add(item);
+					else if (curItem != null) {
+					  result.add(curItem);
 					}
 				}
 			}
@@ -144,8 +154,8 @@ public abstract class AbstractHistoryDataService implements IHistoryDataService 
 					startTime -= Constants.MARKET_CLOSE_TIME;
 					break;
 				case MIN15:
-				case MIN5:
-				case MIN:
+				case MIN05:
+				case MIN01:
 					break;
 				}
 				// set up start time for future parse

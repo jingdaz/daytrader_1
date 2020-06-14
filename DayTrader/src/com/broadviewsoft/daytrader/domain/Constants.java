@@ -20,13 +20,19 @@ public class Constants {
 
 	public final static boolean PROD_MODE = false;
 
-	public final static String FILENAME_CONNECTOR = "_";
+	public final static String DOB_PATTERN = "mm/dd/yyyy";
+	
+	public final static String FILENAME_CONNECTOR = "_0020";
 	public final static String CSV_SEPARATOR = ",";
+	public final static String PATH_SEPARATOR = "/";
 	public final static String STOCK_DATA_FILE_EXTENSION = ".csv";
 	public final static String STOCK_DATA_FILE_GF_PREFIX = "GF_";
 	public final static String STOCK_DATA_FILE_BVS_PREFIX = "";
 
-	public final static String STOCK_DATA_FILE_HEADER = "Timestamp,Open,High,Low,Close";
+//	public final static String STOCK_DATA_FILE_HEADER = "Timestamp,Open,High,Low,Close";
+	public final static String STOCK_DATA_FILE_HEADER = "Date,Open,High,Low,Close";
+//	public final static String CSV_FILE_HEADER ="Timestamp,Open,High,Low,Close,Rsi,Cci,Volume";
+	public static final String NEW_FILE_HEADER = "Timestamp,Open,High,Low,Close,Rsi,Cci";
 	
 	public final static int MINUTE_IN_SECONDS = 60;
 	public final static long MINUTE_IN_MILLI_SECONDS = 60 * 1000;
@@ -108,12 +114,12 @@ public class Constants {
   public static final double PRICE_CROSS_DOWN_CURITEM_FACTOR = -0.04;
   public static final long PRICE_CROSS_DOWN_TIME_INTERVAL = 60 * 60 * 1000;
   
-	public final static String[] MARKET_HOLIDAYS = { "01/01/2013", "02/18/2013", "03/29/2013" };
-	public final static String[] MARKET_HALF_DAYS = { "12/24/2013" };
+	public final static String[] MARKET_HOLIDAYS = { "01/01/2020", "01/20/2020", "02/17/2020", "04/10/2020", "05/25/2020", "07/03/2020", "09/07/2020", "11/26/2020", "12/25/2020" };
+	public final static String[] MARKET_HALF_DAYS = { "12/24/2020" };
 	
-	public final static String[] STOCKS_WITH_DATA = {"UVXY", "NUGT"};
+	public final static String[] STOCKS_WITH_DATA = {"UNG"/*, "NUGT"*/};
 	public final static int INIT_CASH_AMOUNT = 20000;
-	public final static String[] INIT_STOCK_SYMBOLS = {"UVXY", "NUGT"};
+	public final static String[] INIT_STOCK_SYMBOLS = {"UNG"/*, "NUGT"*/};
 	public final static int[] INIT_STOCK_VOLUMES = { 0, 0};
 
 	public final static double PRICE_HIGHER_FACTOR = 1.01;
@@ -125,7 +131,8 @@ public class Constants {
 	public final static double STOPLOSS_CUR_OPEN_FACTOR = 0.98;
   public static final boolean OVERNIGHT_ONLY = false;
 
-	public final static String STOCK_PRICE_TIMESTAMP_PATTERN = "M/d/yyyy H:mm";
+  // Hour in day (0-23)
+	public final static String STOCK_PRICE_TIMESTAMP_PATTERN = "M/d/yyyy h:mm:ss a";
 	public final static DateFormat STOCK_PRICE_TIMESTAMP_FORMATTER = new SimpleDateFormat(
 			STOCK_PRICE_TIMESTAMP_PATTERN);
 	
@@ -155,7 +162,7 @@ public class Constants {
 	public final static NumberFormat STOCK_VOLUME_FORMATTER = new DecimalFormat(
 			STOCK_VOLUME_PATTERN);
 
-	public final static String HISTORY_DATA_FILE_PATH = "D:/projects/DayTrader/resources/data/";
+	public final static String HISTORY_DATA_FILE_PATH = "C:/workspaces/DayTrader/resources/rawdata/UNG/2020/";
 	// sample link -
 	// http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct&i=60&q=UVXY
 	public final static String HISTORY_DATA_GOOGLE_SITE = "http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct";

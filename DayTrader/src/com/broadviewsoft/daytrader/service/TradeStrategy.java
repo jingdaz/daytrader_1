@@ -4,10 +4,14 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.StockItem;
 import com.broadviewsoft.daytrader.domain.StockStatus;
+import com.broadviewsoft.daytrader.util.Util;
 
 /**
  * possible to mix strategies?
@@ -16,6 +20,7 @@ import com.broadviewsoft.daytrader.domain.StockStatus;
  * 
  */
 public abstract class TradeStrategy implements ITradeStrategy {
+	private static Log logger = LogFactory.getLog( TradeStrategy.class);
 	protected Period period = null;
 	protected IDataFeeder dataFeeder = null;
 
@@ -41,9 +46,9 @@ public abstract class TradeStrategy implements ITradeStrategy {
 		List<StockItem> data = dataFeeder.getHistoryData(symbol, period, date);
 		List<StockItem> histData = data.subList(data.size()-Constants.CHART_CCI_SHOW_HISTORY, data.size());
 
-		StockItem ytaItem = dataFeeder.getYesdayItem(symbol, ytaItemIndex);
-		StockItem preHigh = findPreHigh(data);
-		StockItem preLow = findPreLow(data);
+		StockItem ytaItem = dataFeeder.getYesterdayItem(symbol, ytaItemIndex);
+		StockItem preHigh = Util.findPreHigh(data);
+		StockItem preLow = Util.findPreLow(data);
 		StockItem curItem = data.get(data.size() - 1);
 
 		curStatus.setYtaItem(ytaItem);
@@ -54,36 +59,6 @@ public abstract class TradeStrategy implements ITradeStrategy {
 		curStatus.setHistItems(new LinkedList<StockItem>(histData));
 
 		return curStatus;
-	}
-
-	/**
-	 * Find previous Low of CCI within 48 intervals
-	 * 
-	 * @param data
-	 * @return
-	 */
-	private StockItem findPreLow(List<StockItem> data) {
-		List<StockItem> sample = data.subList(data.size()
-				- Constants.STATUS_INTERVAL, data.size());
-		StockItem preLow = sample.get(0);
-		for (StockItem si : sample) {
-			if (preLow.getCci() >= si.getCci()) {
-				preLow = si;
-			}
-		}
-		return preLow;
-	}
-
-	private StockItem findPreHigh(List<StockItem> data) {
-		List<StockItem> sample = data.subList(data.size()
-				- Constants.STATUS_INTERVAL, data.size());
-		StockItem preHigh = sample.get(0);
-		for (StockItem si : sample) {
-			if (preHigh.getCci() <= si.getCci()) {
-				preHigh = si;
-			}
-		}
-		return preHigh;
 	}
 
 }

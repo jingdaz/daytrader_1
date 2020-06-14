@@ -1,14 +1,20 @@
 package com.broadviewsoft.daytrader.service;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.domain.Account;
+import com.broadviewsoft.daytrader.domain.Client;
 import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.PriceType;
@@ -19,9 +25,9 @@ import com.broadviewsoft.daytrader.util.Util;
 
 /**
  * 
- * Test driver to simulate Day Trade using this system
+ * Abstraction of Trade Platform for Day-Trade
  * <P>
- * Test driver to run backtest using this system to find an optimal strategy
+ * Contains a Broker and Data Feeder
  * </P>
  * <P>
  * <B>Creation date:</B> Mar 8, 2013 3:43:24 PM
@@ -31,20 +37,38 @@ import com.broadviewsoft.daytrader.util.Util;
  */
 public class TradePlatform {
 	private static Log logger = LogFactory.getLog(TradePlatform.class);
+	private DateFormat df = new SimpleDateFormat(Constants.DOB_PATTERN);
 
 	private BrokerService broker = null;
-	private IDataFeeder dataFeeder = null;
+	private List<Client> clients = null;
 
 	public TradePlatform() {
 		broker = new BrokerService();
-		dataFeeder = DataFeederFactory.newInstance();
+		clients = new ArrayList<Client>();
+		init();
 	}
 
+	public void init() {
+		// add a default client to platform
+		Date dob = null;
+		try {
+			dob = df.parse("05/24/1980");
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		Client c = new Client("Jason", "Chang", dob);
+		
+		Account a = new Account();
+		c.addAccount(a);
+		
+		clients.add(c);
+	}
+	
 	public void tradeDaily(Account account, ITradeStrategy strategy,
 			String symbol, Date tradeDate) {
 		Period period = strategy.getPeriod();
 
-		int tdaItemIndex = dataFeeder.getCurItemIndex(symbol, tradeDate,
+		int tdaItemIndex = broker.getItemIndex(symbol, tradeDate,
 				Period.DAY);
 		int ytaItemIndex = tdaItemIndex - 1;
 		logger.info("Index for today and yesterday " + tdaItemIndex + "/"
@@ -55,18 +79,16 @@ public class TradePlatform {
 			return;
 		}
 
-		double curOpen = dataFeeder.getPriceByIndex(symbol, Period.DAY,
+		double curOpen = broker.getPrice(symbol, Period.DAY,
 				tdaItemIndex, PriceType.Open);
-		double curClose = dataFeeder.getPriceByIndex(symbol, Period.DAY,
+		double curClose = broker.getPrice(symbol, Period.DAY,
         tdaItemIndex, PriceType.Close);
-		double preClose = dataFeeder.getPriceByIndex(symbol, Period.DAY,
+		double preClose = broker.getPrice(symbol, Period.DAY,
 				ytaItemIndex, PriceType.Close);
 
-		account.init(preClose);
 		account.showHoldings(tradeDate, preClose);
 
-		// strategy.handleOverNight(account, symbol, tradeDate, preClose,
-		// curOpen);
+		// strategy.handleOverNight(account, symbol, tradeDate, preClose, curOpen);
 
 		Date start = new Date(tradeDate.getTime() + Constants.MARKET_OPEN_TIME);
 		Date end = new Date(tradeDate.getTime() + Constants.MARKET_CLOSE_TIME);
@@ -75,12 +97,11 @@ public class TradePlatform {
 		StockStatus status = null;
 		while (now.before(end)) {
 			for (int i = 0; i < period.minutes(); i++) {
-				broker.checkOrder(now);
+				broker.checkOrder(account, now);
 				if (i == 0 && !Constants.OVERNIGHT_ONLY) {
 					status = strategy.analyze(broker, symbol, period, now,
 							ytaItemIndex);
-					// check order execution after 1 minute - simulate slow
-					// order
+					// check order execution after 1 minute - simulate slow order
 					// entry on mobile phone
 					strategy.execute(status, account);
 				}
@@ -90,6 +111,10 @@ public class TradePlatform {
 			}
 		}
 
+		if (now.equals(end)) {
+			logger.error("Market closes at " + Util.format(now));
+		}
+		
 		account.showOrders(tradeDate);
 		account.showTransactions(tradeDate);
 		account.showHoldings(tradeDate, curClose);
@@ -107,8 +132,6 @@ public class TradePlatform {
 	 */
 	public void trade(Account account, ITradeStrategy strategy, String symbol,
 			Date startDate, Date endDate) {
-		// register account to broker first
-		broker.registerAccount(account);
 		
 		// start trade
 		Date today = startDate;

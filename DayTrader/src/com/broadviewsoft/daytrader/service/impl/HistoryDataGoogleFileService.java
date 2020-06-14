@@ -39,7 +39,8 @@ private static final String path = "D:/projects/DayTrader/resources/data/";
 		CsvDataFileService fileService = new CsvDataFileService();
 		List<StockItem> result = null;
 		String symbol = "UVXY";
-		Period[] ps = {Period.MIN5};
+		Period[] ps = {Period.MIN05};
+		
 		for (Period p : ps) {
 			logger.info("\r\nworking on " + p.name());
 			gfService.loadData(symbol, p, DataFileType.GF);

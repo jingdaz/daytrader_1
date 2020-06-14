@@ -184,7 +184,7 @@ public class StockChart extends JPanel {
   public static void main(String[] args) throws ParseException {
 	  Date curTime = Constants.TRADE_DATE_FORMATTER.parse("04/19/2013");
 	  IDataFeeder dataFeeder = DataFeederFactory.newInstance();
-	  final List<StockItem> items = dataFeeder.getHistoryData("UVXY", Period.MIN5, curTime);
+	  final List<StockItem> items = dataFeeder.getHistoryData("UVXY", Period.MIN05, curTime);
      SwingUtilities.invokeLater(new Runnable() {
         public void run() {
            createAndShowGui(items);

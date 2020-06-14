@@ -14,7 +14,7 @@ Windows-XP Date format:
 RSI Calculation:
 http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
 
- 		100
+		100
     RSI = 100 - --------
                  1 + RS
 

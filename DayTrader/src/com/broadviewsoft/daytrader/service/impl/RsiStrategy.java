@@ -16,7 +16,7 @@ public class RsiStrategy extends TradeStrategy implements ITradeStrategy
   private static Log logger = LogFactory.getLog(RsiStrategy.class);
   
   public RsiStrategy() {
-		period = Period.MIN5;
+		period = Period.MIN05;
 	}
 
   public void execute(StockStatus status, Account account)

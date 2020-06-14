@@ -8,7 +8,7 @@ import com.broadviewsoft.daytrader.domain.PriceType;
 import com.broadviewsoft.daytrader.domain.StockItem;
 
 public interface IDataFeeder {
-	public StockItem getYesdayItem(String symbol, int index);
+	public StockItem getYesterdayItem(String symbol, int index);
 
 	public List<StockItem> getHistoryData(String symbol, Period period, Date cutTime);
 
