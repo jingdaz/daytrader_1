@@ -46,13 +46,16 @@ public class FileHeaderUpdater {
     }
  
 	public static void main(String[] args) throws DataException {
-//		updateHeader("C:/workspaces/DayTrader/resources/rawdata/QQQ/2020", "QQQ");
-//		updateHeader("C:/workspaces/DayTrader/resources/rawdata/SPY/2020", "SPY");
-		updateHeader("C:/workspaces/DayTrader/resources/rawdata/UVXY/2020", "UVXY");
-		updateHeader("C:/workspaces/DayTrader/resources/rawdata/SHOP/2020", "SHOP");
-		updateHeader("C:/workspaces/DayTrader/resources/rawdata/ROKU/2020", "ROKU");
-		updateHeader("C:/workspaces/DayTrader/resources/rawdata/TSLA/2020", "TSLA");
-		updateHeader("C:/workspaces/DayTrader/resources/rawdata/UNG/2020", "UNG");
+		updateHeader("C:/workspaces/daytrader/DayTrader/resources/rawdata/AAPL/2020", "AAPL");
+		updateHeader("C:/workspaces/daytrader/DayTrader/resources/rawdata/AMZN/2020", "AMZN");
+//		updateHeader("C:/workspaces/daytrader/DayTrader/resources/rawdata/QQQ/2020", "QQQ");
+//		updateHeader("C:/workspaces/daytrader/DayTrader/resources/rawdata/SPY/2020", "SPY");
+		
+//		updateHeader("C:/workspaces/DayTrader/resources/rawdata/UVXY/2020", "UVXY");
+//		updateHeader("C:/workspaces/DayTrader/resources/rawdata/SHOP/2020", "SHOP");
+//		updateHeader("C:/workspaces/DayTrader/resources/rawdata/ROKU/2020", "ROKU");
+//		updateHeader("C:/workspaces/DayTrader/resources/rawdata/TSLA/2020", "TSLA");
+//		updateHeader("C:/workspaces/DayTrader/resources/rawdata/UNG/2020", "UNG");
 		System.out.println("finishing header updates.");
 		
 	}

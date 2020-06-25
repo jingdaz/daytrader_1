@@ -241,7 +241,7 @@ public class Util {
 					new NotNull(new ParseDouble()), // low
 					new NotNull(new ParseDouble()), // close
 					new Optional(new ParseDouble()), // rsi
-					new Optional(new ParseDouble()), // cci
+					new Optional(new ParseDouble()) // cci
 			};
 			return processors2;
 		}

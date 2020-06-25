@@ -119,7 +119,7 @@ public class Constants {
 	
 	public final static String[] STOCKS_WITH_DATA = {"UNG"/*, "NUGT"*/};
 	public final static int INIT_CASH_AMOUNT = 20000;
-	public final static String[] INIT_STOCK_SYMBOLS = {"UNG"/*, "NUGT"*/};
+	public final static String[] INIT_STOCK_SYMBOLS = {"AAPL"/*, "NUGT"*/};
 	public final static int[] INIT_STOCK_VOLUMES = { 0, 0};
 
 	public final static double PRICE_HIGHER_FACTOR = 1.01;
@@ -162,7 +162,7 @@ public class Constants {
 	public final static NumberFormat STOCK_VOLUME_FORMATTER = new DecimalFormat(
 			STOCK_VOLUME_PATTERN);
 
-	public final static String HISTORY_DATA_FILE_PATH = "C:/workspaces/DayTrader/resources/rawdata/UNG/2020/";
+	public final static String HISTORY_DATA_FILE_PATH = "C:/workspaces/daytrader/DayTrader/resources/rawdata/UNG/2020/";
 	// sample link -
 	// http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct&i=60&q=UVXY
 	public final static String HISTORY_DATA_GOOGLE_SITE = "http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct";

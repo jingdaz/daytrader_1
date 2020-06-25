@@ -25,7 +25,7 @@ import com.broadviewsoft.daytrader.util.Util;
 /**
  * Abstraction of services on stock history data
  * 
- * @author Jason
+ * @author Jason Zhang
  *
  */
 		

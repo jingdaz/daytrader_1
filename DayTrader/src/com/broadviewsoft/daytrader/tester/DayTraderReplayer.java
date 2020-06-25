@@ -9,7 +9,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.domain.Account;
-import com.broadviewsoft.daytrader.util.Constants;
+import com.broadviewsoft.daytrader.domain.Client;
+import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.service.TradePlatform;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
 import com.broadviewsoft.daytrader.service.impl.CciStrategy;
@@ -51,17 +52,19 @@ public class DayTraderReplayer {
 		strategies.add(strategy);
 	}
 	
-	public void simulate(Account account, String symbol, Date startDate, Date endDate) {
+	public void simulate(Client client, String symbol, Date startDate, Date endDate) {
 		for (ITradeStrategy strategy : strategies) {
 			logger.info("Applying strategy (" + strategy.getDescription() + ") for " + symbol);
-			tradePlatform.trade(account, strategy, symbol, startDate, endDate);
+			tradePlatform.trade(client, strategy, symbol, startDate, endDate);
 		}
 	}
 
 	public static void main(String[] args) throws ParseException {
 		DayTraderReplayer rewinder = new DayTraderReplayer();
 		rewinder.addStrategies(new HumanStrategy());
+		Client client = new Client("Jason", "Chang", "05/24/1980");
 		Account account = new Account();
+		client.addAccount(account);
 //		simulator.addStrategies(new RsiStrategy());
 		String[] symbols = Constants.INIT_STOCK_SYMBOLS;
 
@@ -69,7 +72,7 @@ public class DayTraderReplayer {
 		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("04/19/2013");
 
 		for (String symbol : symbols) {
-		  rewinder.simulate(account, symbol, startDate, endDate);
+		  rewinder.simulate(client, symbol, startDate, endDate);
 		}
 	}
 }

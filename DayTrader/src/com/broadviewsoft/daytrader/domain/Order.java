@@ -98,9 +98,9 @@ public class Order {
     this.costPrice = costPrice;
   }
 
-  public static Order createOrder(Date orderTime, TransactionType txType,
+  public static Order createOrder(Stock stock, Date orderTime, TransactionType txType,
 			OrderType orderType, int qty) {
-		return createOrder(orderTime, txType, orderType, qty, 0, 0);
+		return createOrder(stock, orderTime, txType, orderType, qty, 0, 0);
 	}
 
 	// public static Order createOrder(Date orderTime, TransactionType txType,
@@ -108,11 +108,11 @@ public class Order {
 	// return createOrder(orderTime, txType, orderType, qty, limitPrice, 0);
 	// }
 
-	public static Order createOrder(Date orderTime, TransactionType txType,
+	public static Order createOrder(Stock stock, Date orderTime, TransactionType txType,
 			OrderType orderType, int qty, double limitPrice, double stopPrice) {
 		Order order = new Order();
 		order.setOrderTime(orderTime);
-		order.setStock(new Stock("UVXY"));
+		order.setStock(stock);
 		order.setTxType(txType);
 		order.setStatus(OrderStatus.OPEN);
 		order.setOrderType(orderType);

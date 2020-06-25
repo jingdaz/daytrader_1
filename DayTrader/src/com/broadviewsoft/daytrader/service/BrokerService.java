@@ -32,6 +32,7 @@ public class BrokerService {
 	private IDataFeeder dataFeeder = null;
 
 	public BrokerService() {
+		// use MockDataFeeder by default
 		dataFeeder = DataFeederFactory.newInstance();
 	}
 
@@ -140,7 +141,7 @@ public class BrokerService {
 			if (!Constants.HUMAN_STRATEGY_ENABLED && conditionMet && fundSufficient) {
 				double stopPrice = Constants.PROTECTION_STOP_PRICE * deal;
 				// double limitPrice = Constants.PROTECTION_LIMIT_PRICE * curPrice;
-				result = Order.createOrder(clock, TransactionType.SELL, OrderType.STOP, order.getQuantity(), 0,
+				result = Order.createOrder(order.getStock(), clock, TransactionType.SELL, OrderType.STOP, order.getQuantity(), 0,
 						stopPrice);
 			}
 			break;

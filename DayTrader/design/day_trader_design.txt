@@ -11,6 +11,10 @@
 
 Windows-XP Date format: 
 
+- Util.getProcessors(type) defines header details.
+- DataFileService.loadData() load stock data.
+
+
 RSI Calculation:
 http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:relative_strength_index_rsi
 

@@ -20,10 +20,15 @@ public class MockDataFeeder extends AbstractDataFeeder {
 		this(false);
 	}
 
+	/**
+	 * init method load stock data based on DataFileType
+	 * 
+	 * @param prodMode
+	 */
 	public MockDataFeeder(boolean prodMode) {
 		this.prodMode = prodMode;
 		if (!initialized) {
-			init(Constants.STOCKS_WITH_DATA, DataFileType.BVS);
+			init(Constants.STOCKS_WITH_DATA, DataFileType.Generic);
 			initialized = true;
 		}
 	}

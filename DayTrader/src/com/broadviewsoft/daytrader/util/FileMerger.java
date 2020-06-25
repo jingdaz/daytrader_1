@@ -191,13 +191,13 @@ public class FileMerger {
 //		
 //		result.stream().forEach(System.out::println);
 
-		String[] symbols = {"TSLA"};
+		String[] symbols = {"AAPL", "AMZN"};
 
 //		String[] symbols = {"QQQ", "SPY","UVXY", "SHOP", "ROKU", "TSLA", "UNG"};
 		
 		for (String symbol : symbols) {
 			for (Period p : Period.values()) {
-				mergeExt("C:/workspaces/DayTrader/resources/rawdata/" + symbol + "/2020", symbol, p);
+				mergeExt("C:/workspaces/daytrader/DayTrader/resources/rawdata/" + symbol + "/2020", symbol, p);
 				System.out.println("finishing " + symbol + " " + p.name() + "\n");
 			}
 		}

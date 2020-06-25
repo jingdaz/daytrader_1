@@ -7,7 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.broadviewsoft.daytrader.domain.Account;
-import com.broadviewsoft.daytrader.util.Constants;
+import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.domain.Period;
 import com.broadviewsoft.daytrader.domain.PriceType;
 import com.broadviewsoft.daytrader.service.DataFeederFactory;

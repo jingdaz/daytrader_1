@@ -37,7 +37,6 @@ import com.broadviewsoft.daytrader.util.Util;
  */
 public class TradePlatform {
 	private static Log logger = LogFactory.getLog(TradePlatform.class);
-	private DateFormat df = new SimpleDateFormat(Constants.DOB_PATTERN);
 
 	private BrokerService broker = null;
 	private List<Client> clients = null;
@@ -45,28 +44,12 @@ public class TradePlatform {
 	public TradePlatform() {
 		broker = new BrokerService();
 		clients = new ArrayList<Client>();
-		init();
 	}
 
-	public void init() {
-		// add a default client to platform
-		Date dob = null;
-		try {
-			dob = df.parse("05/24/1980");
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		Client c = new Client("Jason", "Chang", dob);
-		
-		Account a = new Account();
-		c.addAccount(a);
-		
-		clients.add(c);
-	}
-	
-	public void tradeDaily(Account account, ITradeStrategy strategy,
+	public void tradeDaily(Client client, ITradeStrategy strategy,
 			String symbol, Date tradeDate) {
 		Period period = strategy.getPeriod();
+		Account account = client.getAccounts().get(0);
 
 		int tdaItemIndex = broker.getItemIndex(symbol, tradeDate,
 				Period.DAY);
@@ -130,9 +113,9 @@ public class TradePlatform {
 	 * @param startDate
 	 * @param endDate
 	 */
-	public void trade(Account account, ITradeStrategy strategy, String symbol,
+	public void trade(Client client, ITradeStrategy strategy, String symbol,
 			Date startDate, Date endDate) {
-		
+		Account account = client.getAccounts().get(0);
 		// start trade
 		Date today = startDate;
 		Date nextDay = null;
@@ -150,7 +133,7 @@ public class TradePlatform {
 				logger.info("Market opens an half day today; Closed at 1:00 PM");
 				// FIXME tradeHalfDay(strategy, symbol, today);
 			} else {
-				tradeDaily(account, strategy, symbol, today);
+				tradeDaily(client, strategy, symbol, today);
 			}
 			nextDay = new Date(today.getTime() + Constants.DAY_IN_MILLI_SECONDS);
 			if (TimeZone.getDefault().inDaylightTime(today)

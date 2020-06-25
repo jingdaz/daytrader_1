@@ -12,6 +12,7 @@ import com.broadviewsoft.daytrader.domain.Order;
 import com.broadviewsoft.daytrader.domain.OrderStatus;
 import com.broadviewsoft.daytrader.domain.OrderType;
 import com.broadviewsoft.daytrader.domain.Period;
+import com.broadviewsoft.daytrader.domain.Stock;
 import com.broadviewsoft.daytrader.domain.StockHolding;
 import com.broadviewsoft.daytrader.domain.StockStatus;
 import com.broadviewsoft.daytrader.domain.TransactionType;
@@ -29,6 +30,7 @@ public class CciStrategy extends TradeStrategy {
 
 	public void execute(StockStatus stockStatus, Account account) {
 		StockHolding targetHolding = null;
+		Stock stock = stockStatus.getStock();
 		for (StockHolding sh : account.getHoldings()) {
 			if (sh.getStock().eqauls(stockStatus.getStock())) {
 				targetHolding = sh;
@@ -80,13 +82,13 @@ public class CciStrategy extends TradeStrategy {
 			} else {
 				qty = targetHolding.getQuantity();
 			}
-			Order sell = Order.createOrder(stockStatus.getTimestamp(), TransactionType.SELL, OrderType.MARKET, qty);
+			Order sell = Order.createOrder(stock, stockStatus.getTimestamp(), TransactionType.SELL, OrderType.MARKET, qty);
 			account.placeOrder(stockStatus.getTimestamp(), sell);
 		}
 		// Super high open; use trailing stop -2% of highest
 		else if (targetHolding != null && stockStatus.isSuperHighOpen()) {
 			double limitWin = stockStatus.getPreHigh().getHigh() * Constants.LOCKWIN_PRE_HIGH_FACTOR;
-			Order stop = Order.createOrder(stockStatus.getTimestamp(), TransactionType.SELL, OrderType.STOP,
+			Order stop = Order.createOrder(stock, stockStatus.getTimestamp(), TransactionType.SELL, OrderType.STOP,
 					targetHolding.getQuantity(), 0, limitWin);
 			account.placeOrder(stockStatus.getTimestamp(), stop);
 		}
@@ -95,7 +97,7 @@ public class CciStrategy extends TradeStrategy {
 		if (!stockStatus.isWeakest() && !stockStatus.isSuperLowOpen() && stockStatus.picksBtmDvg()
 				&& stockStatus.isBuyingRange()
 				&& (stockStatus.turningPointBelowFair() || stockStatus.isCciBigSlope())) {
-			Order buy = Order.createOrder(stockStatus.getTimestamp(), TransactionType.BUY, OrderType.MARKET,
+			Order buy = Order.createOrder(stock, stockStatus.getTimestamp(), TransactionType.BUY, OrderType.MARKET,
 					Constants.DEFAULT_QUANTITY);
 			account.placeOrder(stockStatus.getTimestamp(), buy);
 		}
@@ -103,7 +105,7 @@ public class CciStrategy extends TradeStrategy {
 		// Super low open; buy at CCI -120 ~ -100 and RSI < 30
 		else if (stockStatus.isSuperLowOpen() && stockStatus.isBuyingRange()
 				&& (stockStatus.isRsiOverSold() || stockStatus.isRsiReversed())) {
-			Order low = Order.createOrder(stockStatus.getTimestamp(), TransactionType.BUY, OrderType.MARKET,
+			Order low = Order.createOrder(stock, stockStatus.getTimestamp(), TransactionType.BUY, OrderType.MARKET,
 					Constants.DEFAULT_QUANTITY);
 			account.placeOrder(stockStatus.getTimestamp(), low);
 		}
@@ -144,21 +146,22 @@ public class CciStrategy extends TradeStrategy {
 		List<StockHolding> holdings = account.getHoldings();
 		for (StockHolding sh : holdings) {
 			// holding over night
-			if (sh.getStock().getSymbol().equalsIgnoreCase(symbol)) {
+			Stock stock = sh.getStock();
+			if (stock.getSymbol().equalsIgnoreCase(symbol)) {
 				int result = Util.compare(curOpen, preClose);
 				// Open high, set lockwin order min(5% profit, 2%+ open)
 				// or Stop at -2% of highest so far
 				if (result > 0) {
 					double lockWinLimit = Util.trim(Math.min(Constants.LOCKWIN_PRE_CLOSE_FACTOR * preClose,
 							Constants.LOCKWIN_CUR_OPEN_FACTOR * curOpen));
-					Order newOrder = Order.createOrder(timestamp, TransactionType.SELL, OrderType.LIMIT,
+					Order newOrder = Order.createOrder(stock, timestamp, TransactionType.SELL, OrderType.LIMIT,
 							sh.getQuantity(), lockWinLimit, 0);
 					account.placeOrder(timestamp, newOrder);
 				}
 				// Open low, set stop order
 				else if (result < 0) {
 					double stopLoss = Util.trim(Constants.STOPLOSS_CUR_OPEN_FACTOR * curOpen);
-					Order newOrder = Order.createOrder(timestamp, TransactionType.SELL, OrderType.STOP,
+					Order newOrder = Order.createOrder(stock, timestamp, TransactionType.SELL, OrderType.STOP,
 							sh.getQuantity(), 0, stopLoss);
 					account.placeOrder(timestamp, newOrder);
 				}

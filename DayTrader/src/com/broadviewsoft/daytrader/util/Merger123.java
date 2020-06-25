@@ -79,7 +79,7 @@ public class Merger123 {
 	
 	public static void main(String[] args) throws DataException {
 //		String fn2 = "C:/workspaces/DayTrader/resources/rawdata/SHOP/2020/archive/SH_20200501_min02.csv";
-		String fn2 = "C:/workspaces/DayTrader/resources/rawdata/SHOP/2020/archive/SH_20200417_min02.csv";
+		String fn2 = "C:/workspaces/daytrader/DayTrader/resources/rawdata/SPY/2020/SPY_0617_min02.csv";
 
 		
 //		String fn2 = "C:/workspaces/DayTrader/resources/rawdata/UNG/2020/UN0501_min02.csv";
