@@ -48,8 +48,8 @@ public class FileHeaderUpdater {
 	public static void main(String[] args) throws DataException {
 		updateHeader("C:/workspaces/daytrader/DayTrader/resources/rawdata/AAPL/2020", "AAPL");
 		updateHeader("C:/workspaces/daytrader/DayTrader/resources/rawdata/AMZN/2020", "AMZN");
-//		updateHeader("C:/workspaces/daytrader/DayTrader/resources/rawdata/QQQ/2020", "QQQ");
-//		updateHeader("C:/workspaces/daytrader/DayTrader/resources/rawdata/SPY/2020", "SPY");
+		updateHeader("C:/workspaces/daytrader/DayTrader/resources/rawdata/QQQ/2020", "QQQ");
+		updateHeader("C:/workspaces/daytrader/DayTrader/resources/rawdata/SPY/2020", "SPY");
 		
 //		updateHeader("C:/workspaces/DayTrader/resources/rawdata/UVXY/2020", "UVXY");
 //		updateHeader("C:/workspaces/DayTrader/resources/rawdata/SHOP/2020", "SHOP");

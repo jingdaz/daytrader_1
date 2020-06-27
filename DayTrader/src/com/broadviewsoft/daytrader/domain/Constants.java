@@ -117,7 +117,7 @@ public class Constants {
 	public final static String[] MARKET_HOLIDAYS = { "01/01/2020", "01/20/2020", "02/17/2020", "04/10/2020", "05/25/2020", "07/03/2020", "09/07/2020", "11/26/2020", "12/25/2020" };
 	public final static String[] MARKET_HALF_DAYS = { "12/24/2020" };
 	
-	public final static String[] STOCKS_WITH_DATA = {"UNG"/*, "NUGT"*/};
+	public final static String[] STOCKS_WITH_DATA = {"AAPL"/*, "NUGT"*/};
 	public final static int INIT_CASH_AMOUNT = 20000;
 	public final static String[] INIT_STOCK_SYMBOLS = {"AAPL"/*, "NUGT"*/};
 	public final static int[] INIT_STOCK_VOLUMES = { 0, 0};
@@ -162,7 +162,7 @@ public class Constants {
 	public final static NumberFormat STOCK_VOLUME_FORMATTER = new DecimalFormat(
 			STOCK_VOLUME_PATTERN);
 
-	public final static String HISTORY_DATA_FILE_PATH = "C:/workspaces/daytrader/DayTrader/resources/rawdata/UNG/2020/";
+	public final static String HISTORY_DATA_FILE_PATH = "C:/workspaces/daytrader/DayTrader/resources/rawdata/AAPL/2020/";
 	// sample link -
 	// http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct&i=60&q=UVXY
 	public final static String HISTORY_DATA_GOOGLE_SITE = "http://www.google.com/finance/getprices?p=1d&f=d,o,h,l,c,v&df=cpct";

@@ -191,7 +191,7 @@ public class FileMerger {
 //		
 //		result.stream().forEach(System.out::println);
 
-		String[] symbols = {"AAPL", "AMZN"};
+		String[] symbols = {"QQQ", "SPY", "AAPL", "AMZN"};
 
 //		String[] symbols = {"QQQ", "SPY","UVXY", "SHOP", "ROKU", "TSLA", "UNG"};
 		

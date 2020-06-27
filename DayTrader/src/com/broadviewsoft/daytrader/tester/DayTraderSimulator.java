@@ -72,7 +72,7 @@ public class DayTraderSimulator {
 
 		String[] symbols = Constants.INIT_STOCK_SYMBOLS;
 		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("06/22/2020");
-		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("06/23/2020");
+		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("06/24/2020");
 
 		for (String symbol : symbols) {
 			simulator.simulate(c, symbol, startDate, endDate);
