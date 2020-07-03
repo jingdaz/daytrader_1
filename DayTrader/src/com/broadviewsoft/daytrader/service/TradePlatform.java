@@ -95,7 +95,7 @@ public class TradePlatform {
 		}
 
 		if (now.equals(end)) {
-			logger.error("Market closes at " + Util.format(now));
+			logger.info("Market closes at " + Util.format(now));
 		}
 		
 		account.showOrders(tradeDate);
@@ -103,7 +103,7 @@ public class TradePlatform {
 		account.showHoldings(tradeDate, curClose);
 		account.updateProfit(tradeDate, curClose);
 		// refresh account for future
-		account.flush();
+//		account.flush();
 	}
 
 	/**

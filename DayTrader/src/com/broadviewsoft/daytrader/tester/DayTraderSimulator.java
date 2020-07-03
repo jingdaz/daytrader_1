@@ -14,6 +14,7 @@ import com.broadviewsoft.daytrader.domain.Constants;
 import com.broadviewsoft.daytrader.service.TradePlatform;
 import com.broadviewsoft.daytrader.service.ITradeStrategy;
 import com.broadviewsoft.daytrader.service.impl.CciStrategy;
+import com.broadviewsoft.daytrader.service.impl.CciStrategyAAPL;
 import com.broadviewsoft.daytrader.service.impl.RsiStrategy;
 
 /**
@@ -50,7 +51,7 @@ public class DayTraderSimulator {
 	
 	public void init() {
 		logger.info("Initializing simulator...");
-		addStrategy(new CciStrategy());
+		addStrategy(new CciStrategyAAPL());
 //		simulator.addStrategy(new RsiStrategy());
 	}
 	
@@ -71,8 +72,8 @@ public class DayTraderSimulator {
 		c.addAccount(a);
 
 		String[] symbols = Constants.INIT_STOCK_SYMBOLS;
-		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("06/22/2020");
-		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("06/24/2020");
+		Date startDate = Constants.TRADE_DATE_FORMATTER.parse("06/22/2020 12:00:00 AM");
+		Date endDate = Constants.TRADE_DATE_FORMATTER.parse("06/26/2020 04:00:00 PM");
 
 		for (String symbol : symbols) {
 			simulator.simulate(c, symbol, startDate, endDate);

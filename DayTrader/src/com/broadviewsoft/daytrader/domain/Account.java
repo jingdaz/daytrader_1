@@ -39,7 +39,7 @@ public class Account {
 
 	private void init() {
 		cashAmount = Constants.INIT_CASH_AMOUNT;
-		initialAmount = cashAmount;
+		initialAmount =  Constants.INIT_CASH_AMOUNT;
 	}
 
 	public void flush() {
